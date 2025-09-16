@@ -11,17 +11,18 @@ use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+
 
 class UsersResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    protected static ?string $recordTitleAttribute = 'User';
-
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationLabel = 'Users';
+    protected static null|string $pluralLabel = 'Users';
+    protected static null|string $slug = 'users';
+    protected static null|int $navigationSort = 1;
     public static function form(Schema $schema): Schema
     {
         return UsersForm::configure($schema);
