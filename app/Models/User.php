@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -23,7 +24,16 @@ class User extends Authenticatable implements FilamentUser
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
+
+    /**
+     * Relasi ke Order
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
 
     /**
      * Tentukan akses ke panel sesuai role & status
@@ -42,4 +52,3 @@ class User extends Authenticatable implements FilamentUser
         };
     }
 }
-
