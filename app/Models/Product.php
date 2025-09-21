@@ -18,9 +18,9 @@ class Product extends Model
         'id_package',
     ];
 
-    // Relasi: Product milik satu Paket
-    public function paket()
+    // Relasi: Product milik satu Package
+    public function package()
     {
-        return $this->belongsTo(Paket::class, 'id_package');
+        return $this->belongsTo(Package::class, 'id_package');
     }
 }
