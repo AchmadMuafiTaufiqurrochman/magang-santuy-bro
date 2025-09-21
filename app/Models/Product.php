@@ -5,20 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Package extends Model
+class Product extends Model
 {
     use HasFactory;
 
-    protected $table = 'pakets';
+    protected $table = 'products';
 
     protected $fillable = [
         'name',
         'description',
+        'price',
+        'id_package',
     ];
 
-    // Relasi: 1 Paket punya banyak Produk
-    public function products()
+    // Relasi: Product milik satu Paket
+    public function paket()
     {
-        return $this->hasMany(Product::class, 'id_package');
+        return $this->belongsTo(Paket::class, 'id_package');
     }
 }

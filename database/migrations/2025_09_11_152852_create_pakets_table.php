@@ -8,7 +8,6 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('pakets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->string('name', 100);
             $table->decimal('price', 10, 2);
             $table->text('description')->nullable();

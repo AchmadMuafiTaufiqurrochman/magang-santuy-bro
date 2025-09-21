@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Services\Schemas;
+namespace App\Filament\Admin\Resources\Products\Schemas;
 
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\TextInput;
@@ -9,7 +9,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 
 
-class ServiceForm
+class ProductForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -17,23 +17,13 @@ class ServiceForm
             ->components([
                 TextInput::make('name')
                     ->required()
-                    ->label('Service Name')
+                    ->label('Product Name')
                     ->maxLength(100),
 
                 Textarea::make('description')
                     ->nullable()
                     ->label('Description')
                     ->maxLength(500),
-
-                Select::make('category')
-                    ->label('Category')
-                    ->options([
-                        'maintenance' => 'Maintenance',
-                        'repair' => 'Repair',
-                        'installation' => 'Installation',
-                    ])
-                    ->default('maintenance')
-                    ->required(),
 
                 TextInput::make('price')
                     ->numeric()

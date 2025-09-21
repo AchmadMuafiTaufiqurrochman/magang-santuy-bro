@@ -18,8 +18,12 @@ class PackageResource extends Resource
 {
     protected static ?string $model = Package::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cube';
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static ?string $navigationLabel = 'Packages';
+    protected static null|string $pluralLabel = 'Packages';
+    protected static null|string $slug = 'packages';
+    protected static null|int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'package';
 
     public static function form(Schema $schema): Schema
