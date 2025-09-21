@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Package;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -30,7 +31,7 @@ class DatabaseSeeder extends Seeder
         /**
          * === Seed Pakets ===
          */
-        $paket1 = Paket::firstOrCreate(
+        $paket1 = Package::firstOrCreate(
         ['name' => 'Paket Basic'],
         [
             'description' => 'Paket layanan basic',
@@ -38,7 +39,7 @@ class DatabaseSeeder extends Seeder
         ]
         );
 
-        $paket2 = Paket::firstOrCreate(
+        $paket2 = Package::firstOrCreate(
             ['name' => 'Paket Standard'],
             [
                 'description' => 'Paket layanan standard',
@@ -46,7 +47,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $paket3 = Paket::firstOrCreate(
+        $paket3 = Package::firstOrCreate(
             ['name' => 'Paket Premium'],
             [
                 'description' => 'Paket layanan premium',
