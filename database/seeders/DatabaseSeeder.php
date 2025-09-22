@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+
 use App\Models\Package;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -9,10 +10,15 @@ use App\Models\User;
 use App\Models\Paket;
 use App\Models\Product;
 
+use Illuminate\Database\Seeder;
+use App\Models\User;
+
+
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+
         /**
          * === Seed Users ===
          */
@@ -81,6 +87,14 @@ class DatabaseSeeder extends Seeder
                 'description' => 'Jasa cat rumah untuk interior & eksterior.',
                 'price' => 3500000.00,
                 'id_package' => $paket3->id,
+
+        User::updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => bcrypt('password'),
+                'phone' => '08123456789', // <-- wajib isi karena tabel butuh
+
             ]
         );
     }
