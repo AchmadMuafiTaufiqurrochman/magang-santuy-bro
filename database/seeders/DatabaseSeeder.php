@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
         /**
          * === Seed Pakets ===
          */
-        $paket1 = Package::firstOrCreate(
+        $package1 = Package::firstOrCreate(
         ['name' => 'Paket Basic'],
         [
             'description' => 'Paket layanan basic',
@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
         ]
         );
 
-        $paket2 = Package::firstOrCreate(
+        $package2 = Package::firstOrCreate(
             ['name' => 'Paket Standard'],
             [
                 'description' => 'Paket layanan standard',
@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $paket3 = Package::firstOrCreate(
+        $package3 = Package::firstOrCreate(
             ['name' => 'Paket Premium'],
             [
                 'description' => 'Paket layanan premium',
@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
             [
                 'description' => 'Layanan renovasi dapur sederhana dengan material standar.',
                 'price' => 2500000.00,
-                'id_package' => $paket1->id,
+                'id_package' => $package1->id,
             ]
         );
 
@@ -71,7 +71,7 @@ class DatabaseSeeder extends Seeder
             [
                 'description' => 'Perbaikan atap bocor dan pergantian genteng rusak.',
                 'price' => 1500000.00,
-                'id_package' => $paket2->id,
+                'id_package' => $package2->id,
             ]
         );
 
@@ -80,7 +80,7 @@ class DatabaseSeeder extends Seeder
             [
                 'description' => 'Jasa cat rumah untuk interior & eksterior.',
                 'price' => 3500000.00,
-                'id_package' => $paket3->id,
+                'id_package' => $package3->id,
             ]
         );
     }
