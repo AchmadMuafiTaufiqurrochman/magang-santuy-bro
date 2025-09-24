@@ -9,11 +9,12 @@ class Package extends Model
 {
     use HasFactory;
 
-    protected $table = 'pakets';
+    protected $table = 'packages';
 
     protected $fillable = [
         'name',
         'description',
+        'price',
     ];
 
     // Relasi: 1 Paket punya banyak Produk

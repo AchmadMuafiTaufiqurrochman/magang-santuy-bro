@@ -28,6 +28,17 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+
+        /**
+         * === Seed Pakets ===
+         */
+        $package1 = Package::firstOrCreate(
+        ['name' => 'Paket Basic'],
+        [
+            'description' => 'Paket layanan basic',
+            'price' => 1000000.00, // isi default harga
+        ]
+
         // === Customer User ===
         $customer = User::firstOrCreate(
             ['email' => 'customer@gmail.com'],
@@ -61,9 +72,10 @@ class DatabaseSeeder extends Seeder
                 'description' => 'Paket layanan basic',
                 'price' => 1000000.00, // isi default harga
             ]
+
         );
 
-        $paket2 = Package::firstOrCreate(
+        $package2 = Package::firstOrCreate(
             ['name' => 'Paket Standard'],
             [
                 'description' => 'Paket layanan standard',
@@ -71,7 +83,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $paket3 = Package::firstOrCreate(
+        $package3 = Package::firstOrCreate(
             ['name' => 'Paket Premium'],
             [
                 'description' => 'Paket layanan premium',
@@ -85,7 +97,7 @@ class DatabaseSeeder extends Seeder
             [
                 'description' => 'Layanan renovasi dapur sederhana dengan material standar.',
                 'price' => 2500000.00,
-                'id_package' => $paket1->id,
+                'id_package' => $package1->id,
             ]
         );
 
@@ -94,7 +106,7 @@ class DatabaseSeeder extends Seeder
             [
                 'description' => 'Perbaikan atap bocor dan pergantian genteng rusak.',
                 'price' => 1500000.00,
-                'id_package' => $paket2->id,
+                'id_package' => $package2->id,
             ]
         );
 
@@ -103,7 +115,7 @@ class DatabaseSeeder extends Seeder
             [
                 'description' => 'Jasa cat rumah untuk interior & eksterior.',
                 'price' => 3500000.00,
-                'id_package' => $paket3->id,
+                'id_package' => $package3->id,
             ]
         );
 

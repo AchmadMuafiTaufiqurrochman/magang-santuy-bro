@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('price', 12, 2); // Harga produk
 
             $table->unsignedBigInteger('id_package'); // Relasi ke package
-            $table->foreign('id_package')->references('id')->on('pakets')->onDelete('cascade');
+            $table->foreign('id_package')->references('id')->on('packages')->onDelete('cascade');
 
             $table->timestamps(); // created_at & updated_at
         });
