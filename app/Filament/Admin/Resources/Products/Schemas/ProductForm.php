@@ -26,10 +26,14 @@ class ProductForm
                     ->maxLength(500),
 
                 TextInput::make('price')
+                    ->label('Harga')
                     ->numeric()
-                    ->minValue(0)
-                    ->step(0.01)
-                    ->label('Price')
+                    ->prefix('Rp')
+                    ->default(0.00)
+                    ->required(),
+                Select::make('id_package')
+                    ->label('Package')
+                    ->relationship('package', 'name')
                     ->required(),
 
                 Toggle::make('is_active')
