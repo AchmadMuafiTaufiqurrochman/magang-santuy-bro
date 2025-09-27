@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // === Admin User ===
         $admin = User::firstOrCreate(
-            ['email' => 'admin@gmail.com'], // cek berdasarkan email
+            ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Admin User',
                 'phone' => '081234567890',
@@ -28,16 +28,14 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-
-        /**
-         * === Seed Pakets ===
-         */
+        // === Package Default ===
         $package1 = Package::firstOrCreate(
-        ['name' => 'Paket Basic'],
-        [
-            'description' => 'Paket layanan basic',
-            'price' => 1000000.00, // isi default harga
-        ]
+            ['name' => 'Paket Basic'],
+            [
+                'description' => 'Paket layanan basic',
+                'price' => 1000000.00,
+            ]
+        );
 
         // === Customer User ===
         $customer = User::firstOrCreate(
@@ -65,16 +63,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // === Seed Pakets (Package) ===
-        $paket1 = Package::firstOrCreate(
-            ['name' => 'Paket Basic'],
-            [
-                'description' => 'Paket layanan basic',
-                'price' => 1000000.00, // isi default harga
-            ]
-
-        );
-
+        // === Other Packages ===
         $package2 = Package::firstOrCreate(
             ['name' => 'Paket Standard'],
             [
@@ -91,7 +80,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // === Seed Products ===
+        // === Products Default ===
         Product::firstOrCreate(
             ['name' => 'Paket Renovasi Dapur'],
             [
@@ -119,34 +108,34 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // === User Tambahan ===
+        // === Additional User ===
         User::updateOrCreate(
             ['email' => 'test@example.com'],
             [
                 'name' => 'Test User',
                 'password' => bcrypt('password'),
-                'phone' => '08123456789', // <-- wajib isi karena tabel butuh
+                'phone' => '08123456789',
             ]
         );
 
-        // === Create Products ===
+        // === Services Products ===
         $products = [
             [
                 'name' => 'Computer Repair',
                 'description' => 'Professional computer repair and maintenance services',
-                'base_price' => 100000,
+                'price' => 100000,
                 'status' => 'active',
             ],
             [
                 'name' => 'Mobile Phone Service',
                 'description' => 'Mobile phone repair and troubleshooting services',
-                'base_price' => 50000,
+                'price' => 50000,
                 'status' => 'active',
             ],
             [
                 'name' => 'Network Installation',
                 'description' => 'Network setup and configuration services',
-                'base_price' => 200000,
+                'price' => 200000,
                 'status' => 'active',
             ],
         ];
@@ -161,17 +150,17 @@ class DatabaseSeeder extends Seeder
             $packages = [
                 [
                     'name' => $product->name . ' - Basic',
-                    'price' => $product->base_price,
+                    'price' => $product->price,
                     'description' => 'Basic ' . strtolower($product->name) . ' service package',
                 ],
                 [
                     'name' => $product->name . ' - Premium',
-                    'price' => $product->base_price * 1.5,
+                    'price' => $product->price * 1.5,
                     'description' => 'Premium ' . strtolower($product->name) . ' service package with additional features',
                 ],
                 [
                     'name' => $product->name . ' - Enterprise',
-                    'price' => $product->base_price * 2,
+                    'price' => $product->price * 2,
                     'description' => 'Enterprise ' . strtolower($product->name) . ' service package with full support',
                 ],
             ];
@@ -188,33 +177,39 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // === Create Sample Orders ===
+        // === Sample Orders & Transactions ===
         $pakets = Paket::all();
         $statuses = ['pending', 'assigned', 'in_progress', 'done', 'cancelled'];
 
         foreach ($pakets->take(8) as $index => $paket) {
-            $order = Order::firstOrCreate([
-                'user_id' => $customer->id,
-                'paket_id' => $paket->id,
-                'date' => now()->addDays($index + 1)->format('Y-m-d'),
-            ], [
-                'time_slot' => '09:00:00',
-                'address' => 'Jl. Testing No. ' . ($index + 1) . ', Jakarta Selatan',
-                'note' => 'Sample order note for testing #' . ($index + 1),
-                'status' => $statuses[array_rand($statuses)],
-            ]);
+            $order = Order::firstOrCreate(
+                [
+                    'user_id' => $customer->id,
+                    'paket_id' => $paket->id,
+                    'date' => now()->addDays($index + 1)->format('Y-m-d'),
+                ],
+                [
+                    'time_slot' => '09:00:00',
+                    'address' => 'Jl. Testing No. ' . ($index + 1) . ', Jakarta Selatan',
+                    'note' => 'Sample order note for testing #' . ($index + 1),
+                    'status' => $statuses[array_rand($statuses)],
+                ]
+            );
 
             // Create transaction for the order
-            Transaction::firstOrCreate([
-                'order_id' => $order->id,
-            ], [
-                'payment_method' => ['COD', 'transfer'][array_rand(['COD', 'transfer'])],
-                'amount' => $paket->price,
-                'status' => ['pending', 'paid', 'failed'][array_rand(['pending', 'paid', 'failed'])],
-            ]);
+            Transaction::firstOrCreate(
+                [
+                    'order_id' => $order->id,
+                ],
+                [
+                    'payment_method' => ['COD', 'transfer'][array_rand(['COD', 'transfer'])],
+                    'amount' => $paket->price,
+                    'status' => ['pending', 'paid', 'failed'][array_rand(['pending', 'paid', 'failed'])],
+                ]
+            );
         }
 
-        // === Tambahan Dummy Users (unik email & phone) ===
+        // === Tambahan Dummy Users ===
         // User::factory(10)->create();
     }
 }
