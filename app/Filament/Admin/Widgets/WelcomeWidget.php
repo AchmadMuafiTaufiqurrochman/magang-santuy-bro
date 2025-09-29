@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Filament\Admin\Widgets;
 
 use Filament\Widgets\Widget;
 
 class WelcomeWidget extends Widget
 {
-    protected  string $view = 'filament.widgets.welcome-widget';
+    protected int|string|array $columnSpan = 'full'; // biar full width
+    protected static ?int $sort = -1; // biar selalu di atas
 
-    protected int | string | array $columnSpan = 'full'; // biar melebar full di dashboard
+    protected string $view = 'filament.admin.widgets.welcome-widget';
 }
