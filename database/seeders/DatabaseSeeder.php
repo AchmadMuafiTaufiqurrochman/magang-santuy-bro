@@ -33,11 +33,12 @@ class DatabaseSeeder extends Seeder
          * === Seed Pakets ===
          */
         $package1 = Package::firstOrCreate(
-        ['name' => 'Paket Basic'],
-        [
-            'description' => 'Paket layanan basic',
-            'price' => 1000000.00, // isi default harga
-        ]
+            ['name' => 'Paket Basic'],
+            [
+                'description' => 'Paket layanan basic',
+                'price' => 1000000.00, // isi default harga
+            ]
+        ); // <-- Added closing parenthesis here
 
         // === Customer User ===
         $customer = User::firstOrCreate(
@@ -130,89 +131,89 @@ class DatabaseSeeder extends Seeder
         );
 
         // === Create Products ===
-        $products = [
-            [
-                'name' => 'Computer Repair',
-                'description' => 'Professional computer repair and maintenance services',
-                'base_price' => 100000,
-                'status' => 'active',
-            ],
-            [
-                'name' => 'Mobile Phone Service',
-                'description' => 'Mobile phone repair and troubleshooting services',
-                'base_price' => 50000,
-                'status' => 'active',
-            ],
-            [
-                'name' => 'Network Installation',
-                'description' => 'Network setup and configuration services',
-                'base_price' => 200000,
-                'status' => 'active',
-            ],
-        ];
+        // $products = [
+        //     [
+        //         'name' => 'Computer Repair',
+        //         'description' => 'Professional computer repair and maintenance services',
+        //         'base_price' => 100000,
+        //         'status' => 'active',
+        //     ],
+        //     [
+        //         'name' => 'Mobile Phone Service',
+        //         'description' => 'Mobile phone repair and troubleshooting services',
+        //         'base_price' => 50000,
+        //         'status' => 'active',
+        //     ],
+        //     [
+        //         'name' => 'Network Installation',
+        //         'description' => 'Network setup and configuration services',
+        //         'base_price' => 200000,
+        //         'status' => 'active',
+        //     ],
+        // ];
 
-        foreach ($products as $productData) {
-            $product = Product::firstOrCreate(
-                ['name' => $productData['name']],
-                $productData
-            );
+        // foreach ($products as $productData) {
+        //     $product = Product::firstOrCreate(
+        //         ['name' => $productData['name']],
+        //         $productData
+        //     );
 
-            // Create packages for each product
-            $packages = [
-                [
-                    'name' => $product->name . ' - Basic',
-                    'price' => $product->base_price,
-                    'description' => 'Basic ' . strtolower($product->name) . ' service package',
-                ],
-                [
-                    'name' => $product->name . ' - Premium',
-                    'price' => $product->base_price * 1.5,
-                    'description' => 'Premium ' . strtolower($product->name) . ' service package with additional features',
-                ],
-                [
-                    'name' => $product->name . ' - Enterprise',
-                    'price' => $product->base_price * 2,
-                    'description' => 'Enterprise ' . strtolower($product->name) . ' service package with full support',
-                ],
-            ];
+        //     // Create packages for each product
+        //     $packages = [
+        //         [
+        //             'name' => $product->name . ' - Basic',
+        //             'price' => $product->base_price,
+        //             'description' => 'Basic ' . strtolower($product->name) . ' service package',
+        //         ],
+        //         [
+        //             'name' => $product->name . ' - Premium',
+        //             'price' => $product->base_price * 1.5,
+        //             'description' => 'Premium ' . strtolower($product->name) . ' service package with additional features',
+        //         ],
+        //         [
+        //             'name' => $product->name . ' - Enterprise',
+        //             'price' => $product->base_price * 2,
+        //             'description' => 'Enterprise ' . strtolower($product->name) . ' service package with full support',
+        //         ],
+        //     ];
 
-            foreach ($packages as $packageData) {
-                $packageData['product_id'] = $product->id;
-                Paket::firstOrCreate(
-                    [
-                        'product_id' => $product->id,
-                        'name' => $packageData['name']
-                    ],
-                    $packageData
-                );
-            }
-        }
+        //     foreach ($packages as $packageData) {
+        //         $packageData['product_id'] = $product->id;
+        //         Paket::firstOrCreate(
+        //             [
+        //                 'product_id' => $product->id,
+        //                 'name' => $packageData['name']
+        //             ],
+        //             $packageData
+        //         );
+        //     }
+        // }
 
-        // === Create Sample Orders ===
-        $pakets = Paket::all();
-        $statuses = ['pending', 'assigned', 'in_progress', 'done', 'cancelled'];
+        // // === Create Sample Orders ===
+        // $pakets = Paket::all();
+        // $statuses = ['pending', 'assigned', 'in_progress', 'done', 'cancelled'];
 
-        foreach ($pakets->take(8) as $index => $paket) {
-            $order = Order::firstOrCreate([
-                'user_id' => $customer->id,
-                'paket_id' => $paket->id,
-                'date' => now()->addDays($index + 1)->format('Y-m-d'),
-            ], [
-                'time_slot' => '09:00:00',
-                'address' => 'Jl. Testing No. ' . ($index + 1) . ', Jakarta Selatan',
-                'note' => 'Sample order note for testing #' . ($index + 1),
-                'status' => $statuses[array_rand($statuses)],
-            ]);
+        // foreach ($pakets->take(8) as $index => $paket) {
+        //     $order = Order::firstOrCreate([
+        //         'user_id' => $customer->id,
+        //         'paket_id' => $paket->id,
+        //         'date' => now()->addDays($index + 1)->format('Y-m-d'),
+        //     ], [
+        //         'time_slot' => '09:00:00',
+        //         'address' => 'Jl. Testing No. ' . ($index + 1) . ', Jakarta Selatan',
+        //         'note' => 'Sample order note for testing #' . ($index + 1),
+        //         'status' => $statuses[array_rand($statuses)],
+        //     ]);
 
-            // Create transaction for the order
-            Transaction::firstOrCreate([
-                'order_id' => $order->id,
-            ], [
-                'payment_method' => ['COD', 'transfer'][array_rand(['COD', 'transfer'])],
-                'amount' => $paket->price,
-                'status' => ['pending', 'paid', 'failed'][array_rand(['pending', 'paid', 'failed'])],
-            ]);
-        }
+        //     // Create transaction for the order
+        //     Transaction::firstOrCreate([
+        //         'order_id' => $order->id,
+        //     ], [
+        //         'payment_method' => ['COD', 'transfer'][array_rand(['COD', 'transfer'])],
+        //         'amount' => $paket->price,
+        //         'status' => ['pending', 'paid', 'failed'][array_rand(['pending', 'paid', 'failed'])],
+        //     ]);
+        // }
 
         // === Tambahan Dummy Users (unik email & phone) ===
         // User::factory(10)->create();
