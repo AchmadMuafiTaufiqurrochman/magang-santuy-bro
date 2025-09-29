@@ -4,7 +4,9 @@
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-2xl font-bold">Welcome back, {{ auth()->user()->name }}!</h2>
+                    <h2 class="text-2xl font-bold">
+                        Welcome back, {{ auth()->user()?->name ?? 'Guest' }}!
+                    </h2>
                     <p class="text-blue-100 mt-1">Here's what's happening with your orders today.</p>
                 </div>
                 <div class="hidden md:block">
@@ -17,7 +19,7 @@
 
         <!-- Quick Actions -->
         <div class="grid md:grid-cols-3 gap-4">
-            <a href="{{ \App\Filament\Customer\Resources\OrderResource::getUrl('create') }}" 
+            <a href="{{ \App\Filament\Customer\Resources\OrderResource::getUrl('create') }}"
                class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
                 <div class="flex items-center">
                     <div class="p-3 bg-green-100 rounded-lg">
@@ -32,7 +34,7 @@
                 </div>
             </a>
 
-            <a href="{{ \App\Filament\Customer\Resources\OrderResource::getUrl('index') }}" 
+            <a href="{{ \App\Filament\Customer\Resources\OrderResource::getUrl('index') }}"
                class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
                 <div class="flex items-center">
                     <div class="p-3 bg-blue-100 rounded-lg">
@@ -64,7 +66,7 @@
 
         <!-- Recent Orders -->
         @php
-            $recentOrders = auth()->user()->orders()->with(['paket.product'])->latest()->take(5)->get();
+            $recentOrders = auth()->user()?->orders()->with(['package'])->latest()->take(5)->get() ?? collect();
         @endphp
 
         @if($recentOrders->count() > 0)
@@ -72,7 +74,7 @@
             <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-gray-900">Recent Orders</h3>
-                    <a href="{{ \App\Filament\Customer\Resources\OrderResource::getUrl('index') }}" 
+                    <a href="{{ \App\Filament\Customer\Resources\OrderResource::getUrl('index') }}"
                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                         View all →
                     </a>
@@ -81,6 +83,7 @@
             <div class="p-6">
                 <div class="space-y-4">
                     @foreach($recentOrders as $order)
+                        @continue(!$order->package) {{-- skip jika package null --}}
                     <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
                         <div class="flex items-center space-x-4">
                             <div class="flex-shrink-0">
@@ -91,8 +94,8 @@
                                 </div>
                             </div>
                             <div>
-                                <p class="font-medium text-gray-900">{{ $order->paket->name }}</p>
-                                <p class="text-sm text-gray-600">{{ $order->date->format('d M Y') }} at {{ $order->time_slot->format('H:i') }}</p>
+                                <p class="font-medium text-gray-900">{{ $order->package->name ?? 'Unknown Package' }}</p>
+                                <p class="text-sm text-gray-600">{{ $order->date?->format('d M Y') ?? '-' }} at {{ $order->time_slot?->format('H:i') ?? '-' }}</p>
                             </div>
                         </div>
                         <div class="text-right">
@@ -103,9 +106,9 @@
                                 @elseif($order->status === 'done') bg-green-100 text-green-800
                                 @elseif($order->status === 'cancelled') bg-red-100 text-red-800
                                 @endif">
-                                {{ ucfirst(str_replace('_', ' ', $order->status)) }}
+                                {{ ucfirst(str_replace('_', ' ', $order->status ?? 'unknown')) }}
                             </span>
-                            <p class="text-sm text-gray-600 mt-1">Rp {{ number_format($order->paket->price, 0, ',', '.') }}</p>
+                            <p class="text-sm text-gray-600 mt-1">Rp {{ $order->package?->price ? number_format($order->package->price, 0, ',', '.') : '-' }}</p>
                         </div>
                     </div>
                     @endforeach
