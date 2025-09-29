@@ -10,8 +10,8 @@ class Dashboard extends Page
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-home';
     protected static ?string $title = 'Dashboard';
     protected static ?string $navigationLabel = 'Dashboard';
-
-    protected string $view = 'filament.admin.pages.dashboard';
+    protected static ?string $slug = 'dashboard';
+    protected static ?int $navigationSort = 0;
 
     public static function shouldRegisterNavigation(): bool
     {

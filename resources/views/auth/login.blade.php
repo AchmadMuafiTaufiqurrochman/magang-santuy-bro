@@ -28,16 +28,7 @@
                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
             </div>
 
-            <!-- Role -->
-            <div>
-                <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
-                <select id="role" name="role" required
-                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="admin">Admin</option>
-                    <option value="customer">Customer</option>
-                    <option value="technician">Technician</option>
-                </select>
-            </div>
+            
 
             <!-- Button -->
             <div>
