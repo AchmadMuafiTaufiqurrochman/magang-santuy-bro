@@ -6,5 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Service extends Model
 {
-    // ...existing code or add fillable, relationships, etc. as needed...
+
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+        'status',
+    ];
+    protected $casts = [
+        'price' => 'decimal:2',
+    ];
+    
 }
