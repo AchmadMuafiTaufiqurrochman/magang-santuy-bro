@@ -27,6 +27,14 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // === Package Default ===
+        $package1 = Package::firstOrCreate(
+            ['name' => 'Paket Basic'],
+            [
+                'description' => 'Paket layanan basic',
+
+        // === Customer User ===
+
         $customer = User::firstOrCreate(
             ['email' => 'customer@gmail.com'],
             [
@@ -51,6 +59,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // === Other Packages ===
+        $package2 = Package::firstOrCreate(
+
         User::updateOrCreate(
             ['email' => 'test@example.com'],
             [
@@ -67,6 +78,7 @@ class DatabaseSeeder extends Seeder
         );
 
         $packageStandard = Package::firstOrCreate(
+
             ['name' => 'Paket Standard'],
             ['description' => 'Paket layanan standard', 'price' => 2000000]
         );
@@ -76,8 +88,14 @@ class DatabaseSeeder extends Seeder
             ['description' => 'Paket layanan premium', 'price' => 3000000]
         );
 
+
+        // === Products Default ===
+        Product::firstOrCreate(
+            ['name' => 'Paket Renovasi Dapur'],
+
         // === Products ===
         $products = [
+
             [
                 'name' => 'Paket Renovasi Dapur',
                 'description' => 'Layanan renovasi dapur sederhana dengan material standar.',
@@ -93,6 +111,12 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Paket Pengecatan Rumah',
                 'description' => 'Jasa cat rumah untuk interior & eksterior.',
+
+                'price' => 3500000.00,
+                'id_package' => $package3->id,
+            ]
+        );
+
                 'price' => 3500000,
                 'id_package' => $packagePremium->id,
             ],
@@ -120,6 +144,7 @@ class DatabaseSeeder extends Seeder
             Product::firstOrCreate(['name' => $prod['name']], $prod);
         }
 
+
         // === Additional User ===
         User::updateOrCreate(
             ['email' => 'test@example.com'],
@@ -129,6 +154,7 @@ class DatabaseSeeder extends Seeder
                 'phone' => '08123456789',
             ]
         );
+
 
         // === Sample Orders & Transactions ===
         $packages = Package::all();
@@ -160,3 +186,4 @@ class DatabaseSeeder extends Seeder
         }
     }
 }
+
