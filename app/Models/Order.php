@@ -19,6 +19,7 @@ class Order extends Model
         'time_slot',
         'address',
         'note', // Akan menggunakan field note untuk menyimpan info products juga
+        'technician_notes',
         'status',
     ];
 
@@ -70,5 +71,16 @@ class Order extends Model
     public function transaction(): HasOne
     {
         return $this->hasOne(Transaction::class);
+    }
+
+    public function orderAssignments(): HasMany
+    {
+        return $this->hasMany(OrderAssignment::class);
+    }
+
+    // Helper method to get assigned technician
+    public function assignedTechnician()
+    {
+        return $this->orderAssignments()->with('technician')->first()?->technician;
     }
 }
