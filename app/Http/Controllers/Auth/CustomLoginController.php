@@ -18,8 +18,14 @@ class CustomLoginController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
+            // Ambil user yang login
             $user = Auth::user();
 
+            // Update last_login_at
+            $user->last_login_at = now();
+            $user->save();
+
+            // Redirect berdasarkan role
             switch ($user->role) {
                 case 'admin':
                     return redirect()->intended('/admin'); // panel admin

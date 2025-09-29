@@ -18,9 +18,14 @@ class ServiceResource extends Resource
 {
     protected static ?string $model = Service::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cog';
 
     protected static ?string $recordTitleAttribute = 'service';
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static ?string $navigationLabel = 'Services';
+    protected static null|string $pluralLabel = 'Services';
+    protected static null|string $slug = 'services';
+    protected static null|int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

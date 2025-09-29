@@ -9,10 +9,9 @@ use BackedEnum;
 
 class Dashboard extends Page
 {
-    // ✅ perbaikan type hint untuk Filament 4
+    
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-home';
 
-    // ✅ harus non-static di Filament 4
     protected string $view = 'filament.customer.pages.dashboard';
 
     protected static ?string $title = 'Dashboard Customer';
