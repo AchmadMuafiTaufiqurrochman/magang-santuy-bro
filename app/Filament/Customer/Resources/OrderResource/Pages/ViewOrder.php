@@ -29,16 +29,23 @@ class ViewOrder extends ViewRecord
     {
         return $schema
             ->schema([
-                // === SERVICE INFORMATION ===
-                Forms\Components\Select::make('package_id')
-                    ->label('📦 Service Package')
-                    ->relationship('package', 'name')
+                // === SERVICE SELECTION === (sama seperti di create)
+                Forms\Components\TextInput::make('package_display')
+                    ->label('Service Package (Optional)')
+                    ->placeholder('Select a service package...')
                     ->disabled()
                     ->dehydrated(false)
-                    ->placeholder(fn () => $this->record->package ? null : 'No package selected'),
+                    ->formatStateUsing(function () {
+                        if ($this->record->package) {
+                            return $this->record->package->name . ' - Rp ' . number_format($this->record->package->price, 0, ',', '.');
+                        }
+                        return 'No package selected';
+                    })
+                    ->helperText('Choose a service package or skip to select individual products'),
 
                 Forms\Components\Textarea::make('selected_products_display')
-                    ->label('🛍️ Selected Products')
+                    ->label('Individual Products (Optional)')
+                    ->placeholder('Select individual products...')
                     ->disabled()
                     ->dehydrated(false)
                     ->rows(3)
@@ -49,14 +56,44 @@ class ViewOrder extends ViewRecord
                                 return '• ' . $product->name . ' - Rp ' . number_format($product->price, 0, ',', '.');
                             })->implode("\n");
                         }
-                        return 'No products selected';
+                        return 'No individual products selected';
                     })
-                    ->visible(fn () => $this->record->selectedProducts()->count() > 0),
+                    ->helperText('Select multiple products - hold Ctrl/Cmd to select multiple items'),
 
-                Forms\Components\TextInput::make('total_price_display')
-                    ->label('💰 Total Price')
+                // === SCHEDULE & LOCATION === (sama seperti di create)
+                Forms\Components\DatePicker::make('date')
+                    ->label('Service Date')
                     ->disabled()
                     ->dehydrated(false)
+                    ->helperText('Select your preferred service date'),
+
+                Forms\Components\TimePicker::make('time_slot')
+                    ->label('Preferred Time')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->helperText('Choose your preferred time slot'),
+
+                Forms\Components\Textarea::make('address')
+                    ->label('Service Address')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->rows(3)
+                    ->placeholder('Please provide your complete address for service delivery...'),
+
+                Forms\Components\Textarea::make('note')
+                    ->label('Additional Notes')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->rows(2)
+                    ->formatStateUsing(fn () => $this->record->getCleanNoteAttribute() ?: '')
+                    ->placeholder('Any special instructions or requests...'),
+
+                // === ORDER SUMMARY === (sama seperti di create)
+                Forms\Components\TextInput::make('price_calculation')
+                    ->label('� Total Price')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->prefix('Total:')
                     ->formatStateUsing(function () {
                         $totalPrice = 0;
 
@@ -71,51 +108,21 @@ class ViewOrder extends ViewRecord
                             $totalPrice += $product->price;
                         }
 
-                        return 'Rp ' . number_format($totalPrice, 0, ',', '.');
+                        return $totalPrice > 0 ? "Rp " . number_format($totalPrice, 0, ',', '.') : 'Rp 0';
                     }),
 
-                // === SCHEDULE & LOCATION ===
-                Forms\Components\DatePicker::make('date')
-                    ->label('📅 Service Date')
-                    ->disabled()
-                    ->dehydrated(false),
-
-                Forms\Components\TimePicker::make('time_slot')
-                    ->label('⏰ Service Time')
-                    ->disabled()
-                    ->dehydrated(false),
-
-                Forms\Components\Textarea::make('address')
-                    ->label('📍 Service Address')
-                    ->disabled()
-                    ->dehydrated(false)
-                    ->rows(3),
-
-                Forms\Components\Textarea::make('note')
-                    ->label('📝 Additional Notes')
-                    ->disabled()
-                    ->dehydrated(false)
-                    ->rows(2)
-                    ->formatStateUsing(fn () => $this->record->getCleanNoteAttribute() ?: 'No additional notes'),
-
-                // === ORDER STATUS ===
+                // === ORDER STATUS === (info tambahan untuk view)
                 Forms\Components\TextInput::make('status')
-                    ->label('📋 Order Status')
+                    ->label('Order Status')
                     ->disabled()
                     ->dehydrated(false)
                     ->formatStateUsing(fn ($state) => ucfirst(str_replace('_', ' ', $state))),
 
                 Forms\Components\TextInput::make('created_at')
-                    ->label('🕒 Order Created')
+                    ->label('Order Created')
                     ->disabled()
                     ->dehydrated(false)
                     ->formatStateUsing(fn () => $this->record->created_at?->format('d F Y H:i') ?? 'N/A'),
-
-                Forms\Components\TextInput::make('updated_at')
-                    ->label('🔄 Last Updated')
-                    ->disabled()
-                    ->dehydrated(false)
-                    ->formatStateUsing(fn () => $this->record->updated_at?->format('d F Y H:i') ?? 'N/A'),
             ])
             ->columns(2);
     }

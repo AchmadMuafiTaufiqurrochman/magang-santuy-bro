@@ -33,6 +33,20 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
+    // Alias customer untuk user (karena user adalah customer yang order)
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relasi ke technician melalui order assignments
+    public function technician(): BelongsTo
+    {
+        // Ambil technician dari order assignment pertama
+        $assignment = $this->orderAssignments()->first();
+        return $assignment ? $assignment->technician() : $this->belongsTo(User::class, 'user_id')->whereNull('id');
+    }
+
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class);

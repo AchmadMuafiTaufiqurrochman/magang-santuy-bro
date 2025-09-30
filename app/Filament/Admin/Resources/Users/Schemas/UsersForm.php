@@ -25,9 +25,10 @@ class UsersForm
                     ->maxLength(100),
 
                 TextInput::make('phone')
-                    ->nullable()
+                    ->required()
                     ->label('Phone')
-                    ->maxLength(20),
+                    ->maxLength(20)
+                    ->unique('users', 'phone', ignoreRecord: true),
 
                 TextInput::make('password')
                     ->password()
