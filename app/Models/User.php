@@ -22,6 +22,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
         'status',
+        'technician_status',
     ];
 
     protected $casts = [

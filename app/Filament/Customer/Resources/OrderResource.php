@@ -4,7 +4,8 @@ namespace App\Filament\Customer\Resources;
 
 use App\Filament\Customer\Resources\OrderResource\Pages;
 use App\Models\Order;
-use App\Models\Paket;
+use App\Models\Package;
+use App\Models\Product;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -21,56 +22,94 @@ class OrderResource extends Resource
     protected static ?string $model = Order::class;
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-shopping-bag';
-    
+
     protected static ?string $navigationLabel = 'My Orders';
-    
+
     protected static ?string $title = 'My Orders';
 
     public static function form(Schema $schema): Schema
-{
-    return $schema->schema([
-        Forms\Components\Select::make('paket_id')
-            ->label('Service Package')
-            ->options(Paket::with('product')->get()->pluck('name', 'id'))
-            ->required()
+    {
+        return $schema->schema([
+        // === SERVICE SELECTION ===
+        Forms\Components\Select::make('package_id')
+            ->label('Service Package (Optional)')
+            ->placeholder('Select a service package...')
+            ->options(Package::all()->pluck('name', 'id'))
             ->searchable()
             ->preload()
             ->live()
-            ->afterStateUpdated(function ($state, $set) {
-                if ($state) {
-                    $paket = Paket::find($state);
-                    if ($paket) {
-                        $set('estimated_price', $paket->price);
-                    }
-                }
-            }),
-            
+            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending']))
+            ->afterStateUpdated(function ($state, $set, $get) {
+                $set('price_calculation', static::calculateTotalPrice($get));
+            })
+            ->helperText('Choose a service package or skip to select individual products'),
+
+        Forms\Components\Select::make('selected_products')
+            ->label('Individual Products (Optional)')
+            ->placeholder('Select individual products...')
+            ->options(function() {
+                return Product::all()->map(function($product) {
+                    return $product->name . ' - Rp ' . number_format($product->price, 0, ',', '.');
+                })->toArray();
+            })
+            ->multiple()
+            ->searchable()
+            ->preload()
+            ->live()
+            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending']))
+            ->afterStateUpdated(function ($state, $set, $get) {
+                $set('price_calculation', static::calculateTotalPrice($get));
+            })
+            ->afterStateHydrated(function ($component, $get, $set, $state) {
+                // Update price calculation saat form di-load dengan data existing
+                $set('price_calculation', static::calculateTotalPrice($get));
+            })
+            ->helperText('Select multiple products - hold Ctrl/Cmd to select multiple items'),
+
+        // === SCHEDULE & LOCATION ===
         Forms\Components\DatePicker::make('date')
+            ->label('Service Date')
             ->required()
             ->minDate(now()->addDay())
-            ->maxDate(now()->addMonths(3)),
-            
+            ->maxDate(now()->addMonths(3))
+            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending']))
+            ->helperText('Select your preferred service date'),
+
         Forms\Components\TimePicker::make('time_slot')
+            ->label('Preferred Time')
             ->required()
             ->seconds(false)
             ->minutesStep(30)
-            ->default('09:00'),
-            
+            ->default('09:00')
+            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending']))
+            ->helperText('Choose your preferred time slot'),
+
         Forms\Components\Textarea::make('address')
+            ->label('Service Address')
             ->required()
             ->rows(3)
-            ->maxLength(500),
-            
+            ->maxLength(500)
+            ->placeholder('Please provide your complete address for service delivery...')
+            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending'])),
+
         Forms\Components\Textarea::make('note')
             ->label('Additional Notes')
             ->rows(2)
-            ->maxLength(255),
-            
-        Forms\Components\Placeholder::make('estimated_price')
-            ->label('Estimated Price')
-            ->content(fn ($get) => $get('paket_id') 
-                ? 'Rp ' . number_format(Paket::find($get('paket_id'))?->price ?? 0, 0, ',', '.') 
-                : '-'),
+            ->maxLength(255)
+            ->placeholder('Any special instructions or requests...')
+            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending'])),
+
+        // === ORDER SUMMARY ===
+        Forms\Components\TextInput::make('price_calculation')
+            ->label('💰 Total Price')
+            ->disabled()
+            ->default('Rp 0')
+            ->dehydrated(false)
+            ->prefix('Total:')
+            ->afterStateHydrated(function ($component, $get, $state) {
+                // Hitung total price saat form di-load untuk edit
+                $component->state(static::calculateTotalPrice($get));
+            }),
 
         // --- Hidden fields (supaya konsisten dengan daftar order) ---
         Forms\Components\Hidden::make('status')
@@ -78,9 +117,37 @@ class OrderResource extends Resource
 
         Forms\Components\Hidden::make('transaction_status')
             ->default('pending'),
-    ]);
-}
+        ]);
+    }
 
+    protected static function calculateTotalPrice($get): string
+    {
+        $totalPrice = 0;
+
+        // Hitung harga package jika dipilih
+        $packageId = $get('package_id');
+        if ($packageId) {
+            $package = Package::find($packageId);
+            if ($package) {
+                $totalPrice += $package->price;
+            }
+        }
+
+        // Hitung harga products jika dipilih
+        $selectedProducts = $get('selected_products');
+        if ($selectedProducts && is_array($selectedProducts) && count($selectedProducts) > 0) {
+            $products = Product::whereIn('id', $selectedProducts)->get();
+            foreach ($products as $product) {
+                $totalPrice += $product->price;
+            }
+        }
+
+        if ($totalPrice > 0) {
+            return "Rp " . number_format($totalPrice, 0, ',', '.');
+        }
+
+        return 'Rp 0';
+    }
 
     public static function table(Table $table): Table
     {
@@ -91,26 +158,38 @@ class OrderResource extends Resource
                 ->sortable()
                 ->searchable()
                 ->weight(FontWeight::Bold),
-                
-            TextColumn::make('paket.name')
-                ->label('Service Package')
+
+            TextColumn::make('services')
+                ->label('Services Ordered')
                 ->searchable()
                 ->sortable()
-                ->wrap(),
-                
-            TextColumn::make('paket.product.name')
-                ->label('Product')
-                ->searchable()
-                ->sortable(),
-                
+                ->wrap()
+                ->getStateUsing(function ($record) {
+                    $services = [];
+
+                    // Tampilkan package jika ada
+                    if ($record->package) {
+                        $services[] = 'Package: ' . $record->package->name;
+                    }
+
+                    // Tampilkan selected products jika ada
+                    $selectedProducts = $record->selectedProducts();
+                    if ($selectedProducts->count() > 0) {
+                        $productNames = $selectedProducts->pluck('name')->toArray();
+                        $services[] = 'Products: ' . implode(', ', $productNames);
+                    }
+
+                    return !empty($services) ? implode(' | ', $services) : 'No Services';
+                }),
+
             TextColumn::make('date')
                 ->date('d M Y')
                 ->sortable(),
-                
+
             TextColumn::make('time_slot')
                 ->time('H:i')
                 ->sortable(),
-                
+
             TextColumn::make('status')
                 ->badge()
                 ->color(fn (string $state): string => match ($state) {
@@ -121,12 +200,28 @@ class OrderResource extends Resource
                     'cancelled' => 'danger',
                 })
                 ->formatStateUsing(fn (string $state): string => ucfirst(str_replace('_', ' ', $state))),
-                
-            TextColumn::make('paket.price')
-                ->label('Price')
+
+            TextColumn::make('total_price')
+                ->label('Total Price')
                 ->money('IDR')
-                ->sortable(),
-                
+                ->sortable()
+                ->getStateUsing(function ($record) {
+                    $total = 0;
+
+                    // Harga package jika ada
+                    if ($record->package) {
+                        $total += $record->package->price;
+                    }
+
+                    // Harga selected products jika ada
+                    $selectedProducts = $record->selectedProducts();
+                    foreach ($selectedProducts as $product) {
+                        $total += $product->price;
+                    }
+
+                    return $total;
+                }),
+
             TextColumn::make('transaction.status')
                 ->label('Payment')
                 ->badge()
@@ -138,7 +233,7 @@ class OrderResource extends Resource
                     default => 'gray',
                 })
                 ->formatStateUsing(fn ($state): string => $state ? ucfirst($state) : 'No Payment'),
-                
+
             TextColumn::make('created_at')
                 ->label('Ordered At')
                 ->dateTime('d M Y H:i')
@@ -253,7 +348,7 @@ class OrderResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('user_id', Auth::id())
-            ->with(['paket.product', 'transaction']);
+            ->with(['package', 'transaction']);
     }
 
     public static function getRelations(): array
@@ -270,7 +365,7 @@ class OrderResource extends Resource
             'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
     }
-    
+
     public static function getNavigationBadge(): ?string
     {
         $count = static::getModel()::where('user_id', Auth::id())
