@@ -33,6 +33,9 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Paket Basic'],
             [
                 'description' => 'Paket layanan basic',
+                'price' => 1000000.00,
+            ]
+        );
 
         // === Customer User ===
         $customer = User::firstOrCreate(
@@ -114,4 +117,6 @@ class DatabaseSeeder extends Seeder
                 'phone' => '08123456789',
             ]
         );
+    }
+}
 
