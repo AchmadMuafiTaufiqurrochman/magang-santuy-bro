@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
@@ -14,38 +16,36 @@ class Order extends Model
         'status',
         'total_price',
         'notes',
+        'package_id',
     ];
 
-    public function customer()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-<<<<<<< HEAD
-    public function service()
-=======
-    // Alias customer untuk user (karena user adalah customer yang order)
+    // Customer (alias user)
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi ke technician melalui order assignments
+    // Service
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(Service::class, 'service_id');
+    }
+
+    // Package
+    public function package(): BelongsTo
+    {
+        return $this->belongsTo(Package::class, 'package_id');
+    }
+
+    // Teknisi
     public function technician(): BelongsTo
     {
-        // Ambil technician dari order assignment pertama
-        $assignment = $this->orderAssignments()->first();
-        return $assignment ? $assignment->technician() : $this->belongsTo(User::class, 'user_id')->whereNull('id');
-    }
-
-    public function package(): BelongsTo
->>>>>>> d74af388c4b535315f1ec848e10a72ca08f85ea4
-    {
-        return $this->belongsTo(Service::class);
-    }
-
-    public function technician()
-    {
         return $this->belongsTo(User::class, 'technician_id');
+    }
+
+    // Assignments
+    public function orderAssignments(): HasMany
+    {
+        return $this->hasMany(OrderAssignment::class);
     }
 }

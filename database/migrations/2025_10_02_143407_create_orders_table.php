@@ -16,31 +16,38 @@ return new class extends Migration
 
             // Relasi ke user (customer)
             $table->foreignId('user_id')
-                  ->constrained('users')
-                  ->cascadeOnDelete();
+                ->constrained('users')
+                ->cascadeOnDelete();
 
-            // Relasi ke product, service, package
+            // Relasi ke service, product, package
             $table->foreignId('service_id')
-                  ->constrained('services')
-                  ->cascadeOnDelete();
+                ->constrained('services')
+                ->cascadeOnDelete();
 
             $table->foreignId('product_id')
-                  ->constrained('products')
-                  ->cascadeOnDelete();
+                ->constrained('products')
+                ->cascadeOnDelete();
 
             $table->foreignId('package_id')
-                  ->constrained('packages')
-                  ->cascadeOnDelete();
+                ->constrained('packages')
+                ->cascadeOnDelete();
 
-            // Relasi ke teknisi (boleh null kalau belum ditugaskan)
+            // Relasi ke teknisi (nullable, bisa null kalau belum ditugaskan)
             $table->foreignId('technician_id')
-                  ->nullable()
-                  ->constrained('users')
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
 
             // Detail order
-            $table->dateTime('order_date')->default(now());
-            $table->enum('status', ['pending', 'in_progress', 'completed', 'cancelled'])->default('pending');
+            $table->date('order_date'); // hanya tanggal
+            $table->time('time_slot')->nullable(); // slot waktu
+            $table->string('address')->nullable();
+
+            // Status order
+            $table->enum('status', ['pending', 'in_progress', 'completed', 'cancelled'])
+                ->default('pending');
+
+            // Total harga
             $table->decimal('total_price', 12, 2)->default(0);
 
             // Catatan opsional

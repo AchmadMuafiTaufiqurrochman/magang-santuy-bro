@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Transaction;
 use App\Models\Package;
 use App\Models\Schedule;
+use App\Models\Service;
 
 class DatabaseSeeder extends Seeder
 {
@@ -68,6 +69,15 @@ class DatabaseSeeder extends Seeder
             ['description' => 'Paket layanan premium', 'price' => 3000000]
         );
 
+        // === Services (kalau kosong, buat dummy) ===
+        if (Service::count() === 0) {
+            Service::create([
+                'name' => 'Service AC',
+                'description' => 'Layanan perbaikan & pemasangan AC',
+                'price' => 500000,
+            ]);
+        }
+
         // === Products ===
         $products = [
             [
@@ -123,21 +133,39 @@ class DatabaseSeeder extends Seeder
         );
 
         // === Sample Orders ===
-        $statuses = ['pending', 'assigned', 'in_progress', 'done', 'cancelled'];
+        $statuses = ['pending', 'in_progress', 'completed', 'cancelled'];
         $packages = Package::all();
+        $services = Service::all();
+        $products = Product::all();
 
         foreach ($packages->take(5) as $index => $package) {
+            $service  = $services->isNotEmpty() ? $services->random() : Service::create([
+                'name' => 'Default Service',
+                'description' => 'Dummy service for testing',
+                'price' => 100000,
+            ]);
+
+            $product  = $products->isNotEmpty() ? $products->random() : Product::create([
+                'name' => 'Default Product',
+                'description' => 'Dummy product for testing',
+                'price' => 100000,
+                'id_package' => $package->id,
+            ]);
+
             $order = Order::firstOrCreate(
                 [
-                    'user_id' => $customer->id,
+                    'user_id'    => $customer->id,
                     'package_id' => $package->id,
-                    'date' => now()->addDays($index + 1)->format('Y-m-d'),
+                    'service_id' => $service->id,
+                    'product_id' => $product->id,
+                    'order_date' => now()->addDays($index + 1),
                 ],
                 [
-                    'time_slot' => '09:00:00',
-                    'address' => 'Jl. Testing No. ' . ($index + 1) . ', Jakarta Selatan',
-                    'note' => 'Sample order note for testing #' . ($index + 1),
-                    'status' => $statuses[array_rand($statuses)],
+                    'notes'        => 'Sample order note for testing #' . ($index + 1),
+                    'status'       => $statuses[array_rand($statuses)],
+                    'technician_id'=> $technician->id,
+                    'total_price'  => $package->price + $product->price,
+                    'time_slot'    => '09:00:00', // default slot
                 ]
             );
 
@@ -145,8 +173,8 @@ class DatabaseSeeder extends Seeder
                 ['order_id' => $order->id],
                 [
                     'payment_method' => ['COD', 'transfer'][rand(0, 1)],
-                    'amount' => $package->price,
-                    'status' => ['pending', 'paid', 'failed'][rand(0, 2)],
+                    'amount'         => $package->price + $product->price,
+                    'status'         => ['pending', 'paid', 'failed'][rand(0, 2)],
                 ]
             );
 
@@ -177,7 +205,6 @@ class DatabaseSeeder extends Seeder
                 'status'         => 'completed',
                 'notes'          => 'Service completed successfully',
             ]);
-        } // <-- close foreach
-
-    } // <-- close run()
+        }
+    }
 }

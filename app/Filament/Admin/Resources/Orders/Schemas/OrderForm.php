@@ -4,20 +4,17 @@ namespace App\Filament\Admin\Resources\Orders\Schemas;
 
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
-<<<<<<< HEAD
+
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-
-=======
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
+
 use App\Models\Package;
 use App\Models\Product;
 use App\Models\User;
->>>>>>> d74af388c4b535315f1ec848e10a72ca08f85ea4
+
 
 class OrderForm
 {
@@ -25,7 +22,6 @@ class OrderForm
     {
         return $schema
             ->components([
-<<<<<<< HEAD
                 Select::make('user_id')
                 ->label('Customer')
                 ->relationship('customer', 'name')
@@ -67,7 +63,7 @@ class OrderForm
                 ->label('Notes')
                 ->nullable()
                 ->columnSpanFull(),
-=======
+
                 // CUSTOMER SELECTION
                 Select::make('user_id')
                     ->label('Customer')
@@ -199,7 +195,6 @@ class OrderForm
                     ->visible(fn ($get) => in_array($get('status'), ['assigned', 'in_progress']))
                     ->helperText('Assign or change technician when status is Assigned or In Progress')
                     ->dehydrated(false), // Tidak disimpan langsung ke order table
->>>>>>> d74af388c4b535315f1ec848e10a72ca08f85ea4
             ]);
     }
 
