@@ -5,10 +5,14 @@ namespace App\Filament\Admin\Resources\Orders\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Support\Enums\FontWeight;
+use Filament\Forms\Components\Select;
+use App\Models\User;
+use Filament\Notifications\Notification;
 
 class OrdersTable
 {
@@ -118,19 +122,32 @@ class OrdersTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 
                 TextColumn::make('technician_name')
-                    ->label('Technician')
+                    ->label('Teknisi')
                     ->getStateUsing(function ($record) {
                         $assignment = $record->orderAssignments()->with('technician')->first();
-                        return $assignment?->technician?->name ?? 'Belum Assign';
+                        if ($assignment && $assignment->technician) {
+                            return $assignment->technician->name;
+                        }
+                        return 'Belum di-Assign';
+                    })
+                    ->color(function ($record) {
+                        $assignment = $record->orderAssignments()->with('technician')->first();
+                        return $assignment ? 'success' : 'danger';
+                    })
+                    ->weight(function ($record) {
+                        $assignment = $record->orderAssignments()->with('technician')->first();
+                        return $assignment ? FontWeight::Medium : FontWeight::Bold;
                     }),
                     
                 TextColumn::make('status')
                     ->badge()
                     ->colors([
-                    'warning' => 'pending',
-                    'info' => 'in_progress',
-                    'success' => 'done',
-                ]),
+                        'warning' => 'pending',
+                        'primary' => 'assigned',
+                        'info' => 'in_progress',
+                        'success' => 'done',
+                        'danger' => 'cancelled',
+                    ]),
 
                 TextColumn::make('created_at')->dateTime(),
             ])
@@ -138,6 +155,52 @@ class OrdersTable
                 //
             ])
             ->recordActions([
+                Action::make('assign_technician')
+                    ->label('Assign Teknisi')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('info')
+                    ->visible(fn ($record) => in_array($record->status, ['pending', 'assigned', 'in_progress']))
+                    ->form([
+                        Select::make('technician_id')
+                            ->label('Pilih Teknisi')
+                            ->placeholder('Pilih teknisi untuk order ini...')
+                            ->options(function() {
+                                return User::where('role', 'technician')
+                                    ->where('status', 'active')
+                                    ->get()
+                                    ->mapWithKeys(function($tech) {
+                                        return [$tech->id => $tech->name . ' (' . $tech->email . ')'];
+                                    });
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                    ])
+                    ->action(function (array $data, $record): void {
+                        // Hapus assignment lama jika ada
+                        $record->orderAssignments()->delete();
+                        
+                        // Buat assignment baru
+                        $record->orderAssignments()->create([
+                            'technician_id' => $data['technician_id'],
+                            'assigned_at' => now(),
+                            'assigned_by' => auth()->id(),
+                        ]);
+
+                        // Update status order ke assigned jika masih pending
+                        if ($record->status === 'pending') {
+                            $record->update(['status' => 'assigned']);
+                        }
+
+                        $technician = User::find($data['technician_id']);
+                        
+                        Notification::make()
+                            ->title('Teknisi Berhasil di-Assign!')
+                            ->body("Order #{$record->id} dari {$record->user->name} telah di-assign ke {$technician->name}")
+                            ->success()
+                            ->send();
+                    }),
+                    
                 EditAction::make(),
             ])
             ->toolbarActions([
