@@ -2,13 +2,14 @@
 
 namespace Database\Seeders;
 
-use App\Models\Package;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\Transaction;
+use App\Models\Package;
+use App\Models\Schedule;
 
 class DatabaseSeeder extends Seeder
 {
@@ -26,17 +27,6 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-
-        // === Package Default ===
-        $package1 = Package::firstOrCreate(
-            ['name' => 'Paket Basic'],
-            [
-                'description' => 'Paket layanan basic',
-                'price' => 1000000.00,
-            ]
-        );
-
-        // === Customer User ===
 
         $customer = User::firstOrCreate(
             ['email' => 'customer@gmail.com'],
@@ -62,18 +52,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // === Other Packages ===
-        $package2 = Package::firstOrCreate(
-
-        User::updateOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => bcrypt('password'),
-                'phone' => '08123456789',
-            ]
-        );
-
         // === Packages ===
         $packageBasic = Package::firstOrCreate(
             ['name' => 'Paket Basic'],
@@ -81,7 +59,6 @@ class DatabaseSeeder extends Seeder
         );
 
         $packageStandard = Package::firstOrCreate(
-
             ['name' => 'Paket Standard'],
             ['description' => 'Paket layanan standard', 'price' => 2000000]
         );
@@ -91,14 +68,8 @@ class DatabaseSeeder extends Seeder
             ['description' => 'Paket layanan premium', 'price' => 3000000]
         );
 
-
-        // === Products Default ===
-        Product::firstOrCreate(
-            ['name' => 'Paket Renovasi Dapur'],
-
         // === Products ===
         $products = [
-
             [
                 'name' => 'Paket Renovasi Dapur',
                 'description' => 'Layanan renovasi dapur sederhana dengan material standar.',
@@ -114,12 +85,6 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Paket Pengecatan Rumah',
                 'description' => 'Jasa cat rumah untuk interior & eksterior.',
-
-                'price' => 3500000.00,
-                'id_package' => $package3->id,
-            ]
-        );
-
                 'price' => 3500000,
                 'id_package' => $packagePremium->id,
             ],
@@ -147,7 +112,6 @@ class DatabaseSeeder extends Seeder
             Product::firstOrCreate(['name' => $prod['name']], $prod);
         }
 
-
         // === Additional User ===
         User::updateOrCreate(
             ['email' => 'test@example.com'],
@@ -157,15 +121,12 @@ class DatabaseSeeder extends Seeder
                 'phone' => '08123456789',
             ]
         );
-    }
-}
 
-
-        // === Sample Orders & Transactions ===
-        $packages = Package::all();
+        // === Sample Orders ===
         $statuses = ['pending', 'assigned', 'in_progress', 'done', 'cancelled'];
+        $packages = Package::all();
 
-        foreach ($packages->take(8) as $index => $package) {
+        foreach ($packages->take(5) as $index => $package) {
             $order = Order::firstOrCreate(
                 [
                     'user_id' => $customer->id,
@@ -183,12 +144,40 @@ class DatabaseSeeder extends Seeder
             Transaction::firstOrCreate(
                 ['order_id' => $order->id],
                 [
-                    'payment_method' => ['COD', 'transfer'][array_rand(['COD', 'transfer'])],
+                    'payment_method' => ['COD', 'transfer'][rand(0, 1)],
                     'amount' => $package->price,
-                    'status' => ['pending', 'paid', 'failed'][array_rand(['pending', 'paid', 'failed'])],
+                    'status' => ['pending', 'paid', 'failed'][rand(0, 2)],
                 ]
             );
-        }
-    }
-}
 
+            // === Jadwal untuk Order (Schedule) ===
+            Schedule::create([
+                'order_id'       => $order->id,
+                'technician_id'  => $technician->id,
+                'scheduled_date' => now()->addDay()->toDateString(),
+                'scheduled_time' => '10:00:00',
+                'status'         => 'pending',
+                'notes'          => 'Initial inspection schedule',
+            ]);
+
+            Schedule::create([
+                'order_id'       => $order->id,
+                'technician_id'  => $technician->id,
+                'scheduled_date' => now()->addDays(2)->toDateString(),
+                'scheduled_time' => '14:00:00',
+                'status'         => 'confirmed',
+                'notes'          => 'Confirmed schedule for service',
+            ]);
+
+            Schedule::create([
+                'order_id'       => $order->id,
+                'technician_id'  => $technician->id,
+                'scheduled_date' => now()->subDay()->toDateString(),
+                'scheduled_time' => '09:00:00',
+                'status'         => 'completed',
+                'notes'          => 'Service completed successfully',
+            ]);
+        } // <-- close foreach
+
+    } // <-- close run()
+}

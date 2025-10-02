@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Schedules;
 
+use App\Filament\Admin\Resources\Schedules\Pages\Calendar;
 use App\Filament\Admin\Resources\Schedules\Pages\CreateSchedule;
 use App\Filament\Admin\Resources\Schedules\Pages\EditSchedule;
 use App\Filament\Admin\Resources\Schedules\Pages\ListSchedules;
@@ -35,7 +36,9 @@ class ScheduleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+
+            
+
         ];
     }
 
