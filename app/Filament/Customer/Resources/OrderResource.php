@@ -34,7 +34,11 @@ class OrderResource extends Resource
         Forms\Components\Select::make('package_id')
             ->label('Service Package (Optional)')
             ->placeholder('Select a service package...')
-            ->options(Package::all()->pluck('name', 'id'))
+            ->options(function() {
+                return Package::all()->mapWithKeys(function($package) {
+                    return [$package->id => $package->name . ' - Rp ' . number_format($package->price, 0, ',', '.')];
+                });
+            })
             ->searchable()
             ->preload()
             ->live()
@@ -48,9 +52,9 @@ class OrderResource extends Resource
             ->label('Individual Products (Optional)')
             ->placeholder('Select individual products...')
             ->options(function() {
-                return Product::all()->map(function($product) {
-                    return $product->name . ' - Rp ' . number_format($product->price, 0, ',', '.');
-                })->toArray();
+                return Product::all()->mapWithKeys(function($product) {
+                    return [$product->id => $product->name . ' - Rp ' . number_format($product->price, 0, ',', '.')];
+                });
             })
             ->multiple()
             ->searchable()
@@ -159,36 +163,76 @@ class OrderResource extends Resource
                 ->searchable()
                 ->weight(FontWeight::Bold),
 
-            TextColumn::make('services')
-                ->label('Services Ordered')
-                ->searchable()
-                ->sortable()
-                ->wrap()
+            // KOLOM PACKAGE
+            TextColumn::make('package')
+                ->label('Service Package')
                 ->getStateUsing(function ($record) {
-                    $services = [];
-
-                    // Tampilkan package jika ada
                     if ($record->package) {
-                        $services[] = 'Package: ' . $record->package->name;
+                        $price = number_format($record->package->price, 0, ',', '.');
+                        return $record->package->name . "\nRp " . $price;
                     }
+                    return 'No Package';
+                })
+                ->wrap()
+                ->searchable(),
 
-                    // Tampilkan selected products jika ada
+            // KOLOM INDIVIDUAL PRODUCTS  
+            TextColumn::make('products')
+                ->label('Individual Products')
+                ->getStateUsing(function ($record) {
                     $selectedProducts = $record->selectedProducts();
                     if ($selectedProducts->count() > 0) {
-                        $productNames = $selectedProducts->pluck('name')->toArray();
-                        $services[] = 'Products: ' . implode(', ', $productNames);
+                        return $selectedProducts->map(function($product) {
+                            $price = number_format($product->price, 0, ',', '.');
+                            return $product->name . ' (Rp ' . $price . ')';
+                        })->implode("\n");
                     }
+                    return 'No Products';
+                })
+                ->wrap()
+                ->searchable(),
 
-                    return !empty($services) ? implode(' | ', $services) : 'No Services';
-                }),
-
+            // KOLOM SERVICE DATE (seperti di create form)
             TextColumn::make('date')
+                ->label('Service Date')
                 ->date('d M Y')
                 ->sortable(),
 
+            // KOLOM PREFERRED TIME (seperti di create form)  
             TextColumn::make('time_slot')
+                ->label('Preferred Time')
                 ->time('H:i')
                 ->sortable(),
+
+            // KOLOM SERVICE ADDRESS (seperti di create form)
+            TextColumn::make('address')
+                ->label('Service Address')
+                ->limit(50)
+                ->tooltip(function (TextColumn $column): ?string {
+                    $state = $column->getState();
+                    if (strlen($state) <= 50) {
+                        return null;
+                    }
+                    return $state;
+                })
+                ->wrap()
+                ->searchable(),
+
+            // KOLOM ADDITIONAL NOTES (seperti di create form)
+            TextColumn::make('note')
+                ->label('Additional Notes')
+                ->getStateUsing(function ($record) {
+                    return $record->getCleanNoteAttribute() ?: 'No notes';
+                })
+                ->limit(30)
+                ->tooltip(function (TextColumn $column): ?string {
+                    $state = $column->getState();
+                    if (strlen($state) <= 30 || $state === 'No notes') {
+                        return null;
+                    }
+                    return $state;
+                })
+                ->toggleable(isToggledHiddenByDefault: true),
 
             TextColumn::make('status')
                 ->badge()
@@ -201,10 +245,13 @@ class OrderResource extends Resource
                 })
                 ->formatStateUsing(fn (string $state): string => ucfirst(str_replace('_', ' ', $state))),
 
+            // KOLOM 💰 TOTAL PRICE (seperti di create form)
             TextColumn::make('total_price')
-                ->label('Total Price')
+                ->label('💰 Total Price')
                 ->money('IDR')
                 ->sortable()
+                ->weight(FontWeight::Bold)
+                ->color('success')
                 ->getStateUsing(function ($record) {
                     $total = 0;
 

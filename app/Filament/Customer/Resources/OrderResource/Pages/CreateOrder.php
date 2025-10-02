@@ -18,7 +18,8 @@ class CreateOrder extends CreateRecord
         // Validasi: minimal harus pilih package atau products
         if (empty($data['package_id']) && empty($data['selected_products'])) {
             throw ValidationException::withMessages([
-                'package_id' => 'You must select at least one service (Package or Products).',
+                'package_id' => 'You must select at least one service (Package or Individual Products).',
+                'selected_products' => 'Please select either a service package or individual products.',
             ]);
         }
 
@@ -26,16 +27,16 @@ class CreateOrder extends CreateRecord
         $data['status'] = 'pending';
 
         // Gabungkan note dengan selected products info
-        $originalNote = $data['note'] ?? '';
+        $originalNote = trim($data['note'] ?? '');
         $selectedProducts = $data['selected_products'] ?? [];
 
-        if (!empty($selectedProducts)) {
+        if (!empty($selectedProducts) && is_array($selectedProducts)) {
             // Simpan selected products ke dalam note sebagai JSON
             $data['note'] = $originalNote . ' PRODUCTS:' . json_encode($selectedProducts);
         }
 
         // Remove fields yang tidak ada di database
-        unset($data['estimated_price']);
+        unset($data['price_calculation']);
         unset($data['transaction_status']);
         unset($data['selected_products']);
 
