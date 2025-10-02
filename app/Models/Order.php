@@ -2,85 +2,32 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'user_id',
-        'package_id',
-        'date',
-        'time_slot',
-        'address',
-        'note', // Akan menggunakan field note untuk menyimpan info products juga
-        'technician_notes',
+        'service_id',
+        'technician_id',
+        'order_date',
         'status',
+        'total_price',
+        'notes',
     ];
 
-    protected $casts = [
-        'date' => 'date',
-        'time_slot' => 'datetime:H:i',
-    ];
-
-    public function user(): BelongsTo
+    public function customer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function package(): BelongsTo
+    public function service()
     {
-        return $this->belongsTo(Package::class);
+        return $this->belongsTo(Service::class);
     }
 
-    // Method untuk mendapatkan selected products dari note
-    public function getSelectedProductsAttribute()
+    public function technician()
     {
-        if (str_contains($this->note, 'PRODUCTS:')) {
-            $parts = explode('PRODUCTS:', $this->note);
-            if (isset($parts[1])) {
-                $productIds = json_decode(trim($parts[1]), true);
-                return is_array($productIds) ? $productIds : [];
-            }
-        }
-        return [];
-    }
-
-    // Method untuk mendapatkan products yang dipilih
-    public function selectedProducts()
-    {
-        $productIds = $this->getSelectedProductsAttribute();
-        return Product::whereIn('id', $productIds)->get();
-    }
-
-    // Method untuk mendapatkan note tanpa product data
-    public function getCleanNoteAttribute()
-    {
-        if (str_contains($this->note, 'PRODUCTS:')) {
-            $parts = explode('PRODUCTS:', $this->note);
-            return trim($parts[0]);
-        }
-        return $this->note;
-    }
-
-    public function transaction(): HasOne
-    {
-        return $this->hasOne(Transaction::class);
-    }
-
-    public function orderAssignments(): HasMany
-    {
-        return $this->hasMany(OrderAssignment::class);
-    }
-
-    // Helper method to get assigned technician
-    public function assignedTechnician()
-    {
-        return $this->orderAssignments()->with('technician')->first()?->technician;
+        return $this->belongsTo(User::class, 'technician_id');
     }
 }

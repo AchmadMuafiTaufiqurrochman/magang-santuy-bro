@@ -18,14 +18,15 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Transactions';
     protected static ?string $navigationLabel = 'Orders';
     protected static null|string $pluralLabel = 'Orders';
     protected static null|string $slug = 'orders';
     protected static null|int $navigationSort = 1;
-
     protected static ?string $recordTitleAttribute = 'Order';
+
 
     public static function form(Schema $schema): Schema
     {
