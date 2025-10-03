@@ -3,208 +3,230 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Models\Product;
-use App\Models\Order;
-use App\Models\Transaction;
-use App\Models\Package;
-use App\Models\Schedule;
-use App\Models\Service;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // === Users ===
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@gmail.com'],
+        // Users
+        DB::table('users')->insert([
             [
+                'id' => 1,
                 'name' => 'Admin User',
+                'email' => 'admin@gmail.com',
                 'phone' => '081234567890',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
+                'technician_status' => 'offline',
                 'status' => 'active',
                 'email_verified_at' => now(),
-            ]
-        );
-
-        $customer = User::firstOrCreate(
-            ['email' => 'customer@gmail.com'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
             [
+                'id' => 2,
                 'name' => 'Customer User',
+                'email' => 'customer@gmail.com',
                 'phone' => '081298765432',
                 'password' => Hash::make('password'),
                 'role' => 'customer',
+                'technician_status' => 'offline',
                 'status' => 'active',
                 'email_verified_at' => now(),
-            ]
-        );
-
-        $technician = User::firstOrCreate(
-            ['email' => 'technician@gmail.com'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
             [
+                'id' => 3,
                 'name' => 'Technician User',
+                'email' => 'technician@gmail.com',
                 'phone' => '081277788899',
                 'password' => Hash::make('password'),
                 'role' => 'technician',
+                'technician_status' => 'offline',
                 'status' => 'active',
                 'email_verified_at' => now(),
-            ]
-        );
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
 
-        // === Packages ===
-        $packageBasic = Package::firstOrCreate(
-            ['name' => 'Paket Basic'],
-            ['description' => 'Paket layanan basic', 'price' => 1000000]
-        );
-
-        $packageStandard = Package::firstOrCreate(
-            ['name' => 'Paket Standard'],
-            ['description' => 'Paket layanan standard', 'price' => 2000000]
-        );
-
-        $packagePremium = Package::firstOrCreate(
-            ['name' => 'Paket Premium'],
-            ['description' => 'Paket layanan premium', 'price' => 3000000]
-        );
-
-        // === Services (kalau kosong, buat dummy) ===
-        if (Service::count() === 0) {
-            Service::create([
-                'name' => 'Service AC',
-                'description' => 'Layanan perbaikan & pemasangan AC',
+        // Packages
+        DB::table('packages')->insert([
+            [
+                'id' => 1,
+                'name' => 'Paket Cuci AC',
+                'price' => 150000,
+                'description' => 'Paket layanan cuci AC untuk 1 unit',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 2,
+                'name' => 'Paket Isi Freon',
+                'price' => 250000,
+                'description' => 'Isi freon AC R32 / R410A',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 3,
+                'name' => 'Paket Service Lengkap',
                 'price' => 500000,
-            ]);
-        }
+                'description' => 'Cuci + cek kebocoran + isi freon',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
 
-        // === Products ===
-        $products = [
+        // Services
+        DB::table('services')->insert([
             [
-                'name' => 'Paket Renovasi Dapur',
-                'description' => 'Layanan renovasi dapur sederhana dengan material standar.',
-                'price' => 2500000,
-                'id_package' => $packageBasic->id,
+                'id' => 1,
+                'name' => 'Pemasangan AC Baru',
+                'description' => 'Instalasi unit AC baru di rumah/kantor',
+                'price' => 400000,
+                'status' => 'active',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
-                'name' => 'Paket Perbaikan Atap',
-                'description' => 'Perbaikan atap bocor dan pergantian genteng rusak.',
-                'price' => 1500000,
-                'id_package' => $packageStandard->id,
+                'id' => 2,
+                'name' => 'Perbaikan AC',
+                'description' => 'Service AC mati total / tidak dingin',
+                'price' => 350000,
+                'status' => 'active',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
-                'name' => 'Paket Pengecatan Rumah',
-                'description' => 'Jasa cat rumah untuk interior & eksterior.',
-                'price' => 3500000,
-                'id_package' => $packagePremium->id,
+                'id' => 3,
+                'name' => 'Cuci AC',
+                'description' => 'Membersihkan unit indoor & outdoor',
+                'price' => 150000,
+                'status' => 'active',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
-                'name' => 'Computer Repair',
-                'description' => 'Professional computer repair and maintenance services',
-                'price' => 100000,
-                'id_package' => $packageBasic->id,
+                'id' => 4,
+                'name' => 'Isi Freon AC',
+                'description' => 'Pengisian freon R32/R410A',
+                'price' => 250000,
+                'status' => 'active',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
+        ]);
+
+        // Products
+        DB::table('products')->insert([
             [
-                'name' => 'Mobile Phone Service',
-                'description' => 'Mobile phone repair and troubleshooting services',
+                'id' => 1,
+                'name' => 'Remote AC Universal',
+                'description' => 'Remote pengganti untuk semua merk AC',
                 'price' => 50000,
-                'id_package' => $packageBasic->id,
+                'status' => 'available',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
-                'name' => 'Network Installation',
-                'description' => 'Network setup and configuration services',
-                'price' => 200000,
-                'id_package' => $packageBasic->id,
+                'id' => 2,
+                'name' => 'Filter AC',
+                'description' => 'Filter udara untuk unit AC split',
+                'price' => 75000,
+                'status' => 'available',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
-        ];
-
-        foreach ($products as $prod) {
-            Product::firstOrCreate(['name' => $prod['name']], $prod);
-        }
-
-        // === Additional User ===
-        User::updateOrCreate(
-            ['email' => 'test@example.com'],
             [
-                'name' => 'Test User',
-                'password' => bcrypt('password'),
-                'phone' => '08123456789',
-            ]
-        );
+                'id' => 3,
+                'name' => 'Kompresor AC',
+                'description' => 'Sparepart kompresor AC 1/2 PK',
+                'price' => 1200000,
+                'status' => 'available',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 4,
+                'name' => 'Freon R32 3kg',
+                'description' => 'Tabung freon AC R32 kapasitas 3kg',
+                'price' => 600000,
+                'status' => 'available',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
 
-        // === Sample Orders ===
-        $statuses = ['pending', 'in_progress', 'completed', 'cancelled'];
-        $packages = Package::all();
-        $services = Service::all();
-        $products = Product::all();
+        // Orders
+        DB::table('orders')->insert([
+            [
+                'id' => 1,
+                'user_id' => 2, // customer
+                'service_id' => 3, // Cuci AC
+                'package_id' => 1, // Paket Cuci AC
+                'product_id' => null,
+                'status' => 'completed',
+                'total_price' => 150000,
+                'order_date' => now()->subDays(2),
+                'created_at' => now()->subDays(2),
+                'updated_at' => now()->subDay(),
+            ],
+            [
+                'id' => 2,
+                'user_id' => 2, // customer
+                'service_id' => 4, // Isi Freon
+                'package_id' => 2, // Paket Isi Freon
+                'product_id' => 4, // Freon R32
+                'status' => 'pending',
+                'total_price' => 850000, // service + produk
+                'order_date' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
 
-        foreach ($packages->take(5) as $index => $package) {
-            $service  = $services->isNotEmpty() ? $services->random() : Service::create([
-                'name' => 'Default Service',
-                'description' => 'Dummy service for testing',
-                'price' => 100000,
-            ]);
+        // Order Assignments
+        DB::table('order_assignments')->insert([
+            [
+                'id' => 1,
+                'order_id' => 1,
+                'technician_id' => 3,
+                'created_at' => now()->subDays(2),
+                'updated_at' => now()->subDays(2),
+            ],
+            [
+                'id' => 2,
+                'order_id' => 2,
+                'technician_id' => 3,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
 
-            $product  = $products->isNotEmpty() ? $products->random() : Product::create([
-                'name' => 'Default Product',
-                'description' => 'Dummy product for testing',
-                'price' => 100000,
-                'id_package' => $package->id,
-            ]);
-
-            $order = Order::firstOrCreate(
-                [
-                    'user_id'    => $customer->id,
-                    'package_id' => $package->id,
-                    'service_id' => $service->id,
-                    'product_id' => $product->id,
-                    'order_date' => now()->addDays($index + 1),
-                ],
-                [
-                    'notes'        => 'Sample order note for testing #' . ($index + 1),
-                    'status'       => $statuses[array_rand($statuses)],
-                    'technician_id'=> $technician->id,
-                    'total_price'  => $package->price + $product->price,
-                    'time_slot'    => '09:00:00', // default slot
-                ]
-            );
-
-            Transaction::firstOrCreate(
-                ['order_id' => $order->id],
-                [
-                    'payment_method' => ['COD', 'transfer'][rand(0, 1)],
-                    'amount'         => $package->price + $product->price,
-                    'status'         => ['pending', 'paid', 'failed'][rand(0, 2)],
-                ]
-            );
-
-            // === Jadwal untuk Order (Schedule) ===
-            Schedule::create([
-                'order_id'       => $order->id,
-                'technician_id'  => $technician->id,
-                'scheduled_date' => now()->addDay()->toDateString(),
-                'scheduled_time' => '10:00:00',
-                'status'         => 'pending',
-                'notes'          => 'Initial inspection schedule',
-            ]);
-
-            Schedule::create([
-                'order_id'       => $order->id,
-                'technician_id'  => $technician->id,
-                'scheduled_date' => now()->addDays(2)->toDateString(),
-                'scheduled_time' => '14:00:00',
-                'status'         => 'confirmed',
-                'notes'          => 'Confirmed schedule for service',
-            ]);
-
-            Schedule::create([
-                'order_id'       => $order->id,
-                'technician_id'  => $technician->id,
-                'scheduled_date' => now()->subDay()->toDateString(),
-                'scheduled_time' => '09:00:00',
-                'status'         => 'completed',
-                'notes'          => 'Service completed successfully',
-            ]);
-        }
+        // Transactions
+        DB::table('transactions')->insert([
+            [
+                'id' => 1,
+                'order_id' => 1,
+                'amount' => 150000,
+                'payment_method' => 'cash',
+                'status' => 'paid',   // ✅ sesuai enum
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 2,
+                'order_id' => 2,
+                'amount' => 850000,
+                'payment_method' => 'bank_transfer',
+                'status' => 'pending', // ✅ ganti "unpaid" jadi "pending"
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 }

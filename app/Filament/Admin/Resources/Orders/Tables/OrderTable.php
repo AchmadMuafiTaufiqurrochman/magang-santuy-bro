@@ -23,7 +23,7 @@ class OrdersTable
             ->columns([
                 TextColumn::make('id')->sortable(),
 
-                TextColumn::make('customer.name')
+                TextColumn::make('user.name')
                     ->label('Customer')
                     ->sortable()
                     ->searchable(),
@@ -40,35 +40,33 @@ class OrdersTable
 
                 TextColumn::make('package.name')
                     ->label('Package')
-                    ->sortable()
-                    ->searchable(),
+                    ->placeholder('-'),
 
-
-                TextColumn::make('technician.name')
+                // tampilkan teknisi dari relasi orderAssignments
+                TextColumn::make('orderAssignments.technician.name')
                     ->label('Technician')
-                    ->sortable()
-                    ->placeholder('Not Assigned'),
+                    ->formatStateUsing(fn ($state) => $state ?: 'Not Assigned')
+                    ->sortable(),
 
-                TextColumn::make('order_date')
-                    ->dateTime('d M Y H:i'),
+                TextColumn::make('created_at')
+                    ->label('Order Date')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
 
                 TextColumn::make('status')
                     ->badge()
                     ->colors([
                         'warning' => 'pending',
-                        'info'    => 'in_progress',
-                        'success' => 'completed',
-                        'danger'  => 'cancelled',
                         'primary' => 'assigned',
+                        'info'    => 'in_progress',
+                        'success' => 'done',
+                        'danger'  => 'cancelled',
                     ])
                     ->sortable(),
 
                 TextColumn::make('total_price')
+                    ->label('Total Price')
                     ->money('idr', true),
-
-                TextColumn::make('created_at')
-                    ->dateTime('d M Y H:i')
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
 
             ->filters([
@@ -76,18 +74,20 @@ class OrdersTable
                     'pending'     => 'Pending',
                     'assigned'    => 'Assigned',
                     'in_progress' => 'In Progress',
-                    'completed'   => 'Completed',
+                    'done'        => 'Done',
                     'cancelled'   => 'Cancelled',
                 ]),
             ])
 
             ->recordActions([
                 Action::make('assign_technician')
-                    ->label('Assign Teknisi')
+                    ->label('Assign Technician')
                     ->icon('heroicon-o-user-plus')
                     ->color('info')
+                    // hanya tampil jika belum ada teknisi assigned
                     ->visible(fn (Order $record): bool =>
-                        in_array($record->status, ['pending', 'assigned', 'in_progress'])
+                        !$record->orderAssignments()->exists() &&
+                        $record->status === 'pending'
                     )
                     ->form([
                         Select::make('technician_id')
@@ -103,31 +103,25 @@ class OrdersTable
                             ->required(),
                     ])
                     ->action(function (array $data, Order $record): void {
-                        // hapus assignment lama
-                        $record->orderAssignments()->delete();
-
-                        // buat assignment baru
                         $record->orderAssignments()->create([
                             'technician_id' => $data['technician_id'],
                             'assigned_at'   => now(),
                             'assigned_by'   => Auth::id(),
                         ]);
 
-                        // update status kalau masih pending
-                        if ($record->status === 'pending') {
-                            $record->update(['status' => 'assigned']);
-                        }
+                        $record->update(['status' => 'assigned']);
 
                         $technician = User::find($data['technician_id']);
 
                         Notification::make()
                             ->title('Teknisi Berhasil di-Assign!')
-                            ->body("Order #{$record->id} dari {$record->customer->name} telah di-assign ke {$technician->name}")
+                            ->body("Order #{$record->id} dari {$record->user->name} telah di-assign ke {$technician->name}")
                             ->success()
                             ->send();
                     }),
 
                 EditAction::make(),
+                DeleteBulkAction::make(),
             ])
 
             ->toolbarActions([

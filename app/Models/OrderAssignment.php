@@ -3,34 +3,33 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OrderAssignment extends Model
 {
-    public $timestamps = false;
+    use HasFactory;
 
     protected $fillable = [
         'order_id',
         'technician_id',
-        'assigned_by',
         'assigned_at',
+        'assigned_by', // admin id
     ];
 
-    protected $casts = [
-        'assigned_at' => 'datetime',
-    ];
-
-    public function order(): BelongsTo
+    // Relasi ke Order
+    public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
-    public function technician(): BelongsTo
+    // Relasi ke Technician (User)
+    public function technician()
     {
         return $this->belongsTo(User::class, 'technician_id');
     }
 
-    public function assignedBy(): BelongsTo
+    // Relasi ke Admin yang assign
+    public function assignedBy()
     {
         return $this->belongsTo(User::class, 'assigned_by');
     }

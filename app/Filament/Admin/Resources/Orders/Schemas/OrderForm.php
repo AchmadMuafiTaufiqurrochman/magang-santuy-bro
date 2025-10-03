@@ -12,6 +12,7 @@ use Filament\Forms\Components\TimePicker;
 
 use App\Models\Package;
 use App\Models\Product;
+use App\Models\Service;
 use App\Models\User;
 
 class OrderForm
@@ -22,18 +23,21 @@ class OrderForm
 
             /**
              * CUSTOMER SELECTION
-             * Pilih customer dari tabel users (role = customer & status = active)
              */
             Select::make('user_id')
                 ->label('Customer')
-                ->relationship('user', 'name', fn ($query) =>
-                    $query->where('role', 'customer')->where('status', 'active')
+                ->relationship(
+                    name: 'user',
+                    titleAttribute: 'name',
+                    modifyQueryUsing: fn ($query) =>
+                        $query->where('role', 'customer')
+                              ->where('status', 'active')
                 )
                 ->searchable()
                 ->required(),
 
             /**
-             * TEKNISI (opsional, bisa di-assign belakangan oleh admin)
+             * TEKNISI
              */
             Select::make('technician_id')
                 ->label('Technician')
@@ -42,55 +46,55 @@ class OrderForm
                 ->nullable(),
 
             /**
-             * ORDER DATE
-             * Tanggal order dibuat (biasanya otomatis saat customer submit)
-             */
-            DateTimePicker::make('order_date')
-                ->label('Order Date')
-                ->default(now())
-                ->required(),
-
-            /**
              * ORDER STATUS
-             * Status utama order untuk tracking progress
              */
             Select::make('status')
                 ->label('Order Status')
                 ->options([
-                    'pending'    => 'Pending',
-                    'assigned'   => 'Assigned',
-                    'in_progress'=> 'In Progress',
-                    'done'       => 'Done',
-                    'cancelled'  => 'Cancelled',
+                    'pending'     => 'Pending',
+                    'assigned'    => 'Assigned',
+                    'in_progress' => 'In Progress',
+                    'done'        => 'Done',
+                    'cancelled'   => 'Cancelled',
                 ])
                 ->default('pending')
                 ->required()
-                ->live()
-                ->helperText('Current status of the order'),
+                ->live(),
+
             /**
              * SERVICE SELECTION
-             * Pilih layanan dari tabel services
              */
             Select::make('service_id')
                 ->label('Service')
-                ->relationship('service', 'name')
+                ->options(fn () =>
+                    Service::all()->mapWithKeys(fn ($s) =>
+                        [$s->id => "{$s->name} - Rp " . number_format($s->price, 0, ',', '.')]
+                    )
+                )
                 ->searchable()
-                ->required(),
-
-            /**PRODUCT SELECTION
-             * Pilih produk dari tabel products
-             */
-            Select::make('product_id')
-                ->label('Product')
-                ->relationship('product', 'name')
-                ->searchable()
+                ->afterStateUpdated(fn ($state, $set, $get) =>
+                    $set('total_price', static::calculateTotalPrice($get))
+                )
                 ->required(),
 
             /**
-             * PRODUCTS SELECTION
-             * Bisa pilih beberapa produk yang diinginkan customer
-             * Hasilnya akan dihitung otomatis di total price
-             * Jika pilih paket, produk diabaikan
+             * PRODUCT SELECTION
+             */
+            Select::make('product_id')
+                ->label('Main Product')
+                ->options(fn () =>
+                    Product::all()->mapWithKeys(fn ($p) =>
+                        [$p->id => "{$p->name} - Rp " . number_format($p->price, 0, ',', '.')]
+                    )
+                )
+                ->searchable()
+                ->afterStateUpdated(fn ($state, $set, $get) =>
+                    $set('total_price', static::calculateTotalPrice($get))
+                )
+                ->required(),
+
+            /**
+             * PACKAGE SELECTION (Optional)
              */
             Select::make('package_id')
                 ->label('Service Package (Optional)')
@@ -98,9 +102,8 @@ class OrderForm
                 ->options(fn () =>
                     Package::all()->mapWithKeys(fn ($package) =>
                         [
-                            $package->id => $package->name
-                                . ' - ' . $package->description // 👈 tambahkan description
-                                . ' - Rp ' . number_format($package->price, 0, ',', '.')
+                            $package->id => "{$package->name} - {$package->description} - Rp " .
+                                number_format($package->price, 0, ',', '.')
                         ]
                     )
                 )
@@ -108,125 +111,77 @@ class OrderForm
                 ->preload()
                 ->live()
                 ->afterStateUpdated(fn ($state, $set, $get) =>
-                    $set('price_calculation', static::calculateTotalPrice($get))
+                    $set('total_price', static::calculateTotalPrice($get))
                 )
                 ->helperText('Choose a service package or skip to select individual products'),
 
             /**
              * SERVICE DATE & TIME
-             * Jadwal permintaan layanan dari customer
              */
-            DatePicker::make('date')
+            DatePicker::make('service_date')
                 ->label('Service Date')
                 ->required()
                 ->minDate(now()->addDay())
-                ->maxDate(now()->addMonths(3))
-                ->helperText('Select your preferred service date'),
+                ->maxDate(now()->addMonths(3)),
 
             TimePicker::make('time_slot')
                 ->label('Preferred Time')
                 ->required()
                 ->seconds(false)
                 ->minutesStep(30)
-                ->default('09:00')
-                ->helperText('Choose your preferred time slot'),
+                ->default('09:00'),
 
             /**
-             * SERVICE ADDRESS
-             * Alamat customer
+             * ADDRESS
              */
             Textarea::make('address')
                 ->label('Service Address')
                 ->required()
                 ->rows(3)
-                ->maxLength(500)
-                ->placeholder('Please provide your complete address for service delivery...'),
+                ->maxLength(500),
 
             /**
-             * ADDITIONAL NOTES
-             * Catatan tambahan customer
+             * NOTES
              */
             Textarea::make('note')
                 ->label('Additional Notes')
                 ->rows(2)
-                ->maxLength(255)
-                ->placeholder('Any special instructions or requests...'),
+                ->maxLength(255),
 
             /**
              * TOTAL PRICE
-             * Perhitungan otomatis dari package + products
              */
-            TextInput::make('price_calculation')
+            TextInput::make('total_price')
                 ->label('💰 Total Price')
                 ->disabled()
-                ->default('Rp 0')
-                ->dehydrated(false) // tidak tersimpan langsung ke DB
-                ->prefix('Total:')
+                ->dehydrated(true) // supaya tersimpan ke DB
+                ->default(0)
+                ->prefix('Rp')
                 ->afterStateHydrated(function ($component, $get, $state) {
                     $component->state(static::calculateTotalPrice($get));
                 }),
-
-            /**
-             * CURRENT TECHNICIAN INFO
-             * Menampilkan teknisi yang sudah assign
-             */
-            TextInput::make('current_technician')
-                ->label('Current Assigned Technician')
-                ->disabled()
-                ->dehydrated(false)
-                ->formatStateUsing(function ($record) {
-                    if ($record && $record->technician) {
-                        return $record->technician->name;
-                    }
-                    return 'No technician assigned yet';
-                })
-                ->helperText('Currently assigned technician for this order'),
-
-            /**
-             * ASSIGN / CHANGE TECHNICIAN (Admin Only)
-             * Pilih teknisi aktif, hanya muncul kalau status assigned / in_progress
-             */
-            Select::make('technician_assignment')
-                ->label('Assign/Change Technician')
-                ->placeholder('Select a technician to assign...')
-                ->options(fn () =>
-                    User::where('role', 'technician')
-                        ->where('status', 'active')
-                        ->get()
-                        ->mapWithKeys(fn ($tech) =>
-                            [$tech->id => $tech->name . ' (' . $tech->email . ')']
-                        )
-                )
-                ->searchable()
-                ->preload()
-                ->visible(fn ($get) => in_array($get('status'), ['assigned', 'in_progress']))
-                ->helperText('Assign or change technician when status is Assigned or In Progress')
-                ->dehydrated(false), // tidak simpan langsung, di-handle via hook Resource
         ]);
     }
 
     /**
-     * Function untuk menghitung total harga
-     * - Jika pilih paket → ambil harga paket
-     * - Jika pilih produk → sum harga produk
-     * - Hasil dalam format Rp
+     * Hitung total harga
      */
-    protected static function calculateTotalPrice($get): string
+    protected static function calculateTotalPrice($get): int
     {
         $totalPrice = 0;
 
-        // Paket
         if ($packageId = $get('package_id')) {
             $totalPrice += Package::whereKey($packageId)->value('price') ?? 0;
         }
 
-        // Produk
-        if ($selectedProducts = $get('selected_products')) {
-            $totalPrice += Product::whereIn('id', $selectedProducts)->sum('price');
+        if ($serviceId = $get('service_id')) {
+            $totalPrice += Service::whereKey($serviceId)->value('price') ?? 0;
         }
 
-        return $totalPrice > 0
-            ? "Rp " . number_format($totalPrice, 0, ',', '.')
-            : 'Rp 0';
+        if ($productId = $get('product_id')) {
+            $totalPrice += Product::whereKey($productId)->value('price') ?? 0;
+        }
+
+        return $totalPrice;
     }
 }
