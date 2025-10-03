@@ -11,6 +11,7 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'service_id',
+        'product_id',
         'technician_id',
         'order_date',
         'status',
@@ -31,6 +32,11 @@ class Order extends Model
         return $this->belongsTo(Service::class, 'service_id');
     }
 
+    // Product
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
     // Package
     public function package(): BelongsTo
     {

@@ -38,10 +38,11 @@ class OrdersTable
                     ->sortable()
                     ->searchable(),
 
-                TextColumn::make('package')
+                TextColumn::make('package.name')
                     ->label('Package')
                     ->sortable()
                     ->searchable(),
+
 
                 TextColumn::make('technician.name')
                     ->label('Technician')
