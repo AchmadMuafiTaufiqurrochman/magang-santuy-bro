@@ -2,18 +2,17 @@
 
 namespace App\Filament\Admin\Resources\Orders\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\Select;
 use App\Models\User;
 use App\Models\Order;
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
 
 class OrdersTable
 {
@@ -21,107 +20,106 @@ class OrdersTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')->sortable(),
+                TextColumn::make('id')->label('ID')->sortable(),
 
                 TextColumn::make('user.name')
                     ->label('Customer')
-                    ->sortable()
                     ->searchable(),
 
-                TextColumn::make('service.name')
-                    ->label('Service')
-                    ->sortable()
-                    ->searchable(),
-
-                TextColumn::make('product.name')
-                    ->label('Product')
-                    ->sortable()
-                    ->searchable(),
-
-                TextColumn::make('package.name')
-                    ->label('Package')
-                    ->placeholder('-'),
-
-                // tampilkan teknisi dari relasi orderAssignments
-                TextColumn::make('orderAssignments.technician.name')
+                TextColumn::make('technician.name')
                     ->label('Technician')
-                    ->formatStateUsing(fn ($state) => $state ?: 'Not Assigned')
-                    ->sortable(),
+                    ->placeholder('Belum di-Assign')
+                    ->color(fn($record) => $record->technician ? 'success' : 'danger')
+                    ->weight(FontWeight::Medium),
 
-                TextColumn::make('created_at')
-                    ->label('Order Date')
-                    ->dateTime('d/m/Y H:i')
+                TextColumn::make('service.name')->label('Service')->sortable(),
+                TextColumn::make('product.name')->label('Product')->sortable(),
+                TextColumn::make('package.name')->label('Package')->placeholder('-')->sortable(),
+
+                TextColumn::make('service_date')->label('Service Date')->date('d M Y')->sortable(),
+                TextColumn::make('time_slot')->label('Time Slot')->sortable(),
+
+                TextColumn::make('address')
+                    ->label('Address')
+                    ->limit(40)
+                    ->tooltip(fn($state) => strlen($state) > 40 ? $state : null),
+
+                TextColumn::make('total_price')
+                    ->label('💰 Total')
+                    ->money('IDR')
+                    ->color('success')
+                    ->weight(FontWeight::Bold)
                     ->sortable(),
 
                 TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->colors([
                         'warning' => 'pending',
                         'primary' => 'assigned',
-                        'info'    => 'in_progress',
+                        'info' => 'in_progress',
                         'success' => 'done',
-                        'danger'  => 'cancelled',
+                        'danger' => 'cancelled',
                     ])
                     ->sortable(),
 
-                TextColumn::make('total_price')
-                    ->label('Total Price')
-                    ->money('idr', true),
-            ])
-
-            ->filters([
-                SelectFilter::make('status')->options([
-                    'pending'     => 'Pending',
-                    'assigned'    => 'Assigned',
-                    'in_progress' => 'In Progress',
-                    'done'        => 'Done',
-                    'cancelled'   => 'Cancelled',
-                ]),
+                TextColumn::make('created_at')->label('Created')->dateTime('d M Y H:i'),
             ])
 
             ->recordActions([
+                /**
+                 * 🔧 Tombol Assign Teknisi
+                 */
                 Action::make('assign_technician')
-                    ->label('Assign Technician')
-                    ->icon('heroicon-o-user-plus')
-                    ->color('info')
-                    // hanya tampil jika belum ada teknisi assigned
-                    ->visible(fn (Order $record): bool =>
-                        !$record->orderAssignments()->exists() &&
-                        $record->status === 'pending'
+                    ->label(fn($record) =>
+                        $record->technician
+                            ? '✔ Teknisi Ter-assign'
+                            : 'Assign Teknisi'
                     )
+                    ->icon(fn($record) =>
+                        $record->technician
+                            ? 'heroicon-o-check-circle'
+                            : 'heroicon-o-user-plus'
+                    )
+                    ->color(fn($record) =>
+                        $record->technician
+                            ? 'success'
+                            : 'info'
+                    )
+                    ->disabled(fn($record) => $record->technician !== null) // tidak bisa ditekan lagi jika sudah assign
+                    ->visible(fn ($record) => in_array($record->status, ['pending', 'assigned', 'in_progress']))
                     ->form([
                         Select::make('technician_id')
                             ->label('Pilih Teknisi')
-                            ->placeholder('Pilih teknisi untuk order ini...')
+                            ->placeholder('Pilih teknisi...')
                             ->options(
                                 User::where('role', 'technician')
                                     ->where('status', 'active')
-                                    ->pluck('name', 'id')
+                                    ->get()
+                                    ->mapWithKeys(fn($tech) => [
+                                        $tech->id => "{$tech->name} ({$tech->email})"
+                                    ])
                             )
                             ->searchable()
                             ->preload()
                             ->required(),
                     ])
                     ->action(function (array $data, Order $record): void {
-                        $record->orderAssignments()->create([
+                        $record->update([
                             'technician_id' => $data['technician_id'],
-                            'assigned_at'   => now(),
-                            'assigned_by'   => Auth::id(),
+                            'status' => $record->status === 'pending' ? 'assigned' : $record->status,
                         ]);
-
-                        $record->update(['status' => 'assigned']);
 
                         $technician = User::find($data['technician_id']);
 
                         Notification::make()
-                            ->title('Teknisi Berhasil di-Assign!')
-                            ->body("Order #{$record->id} dari {$record->user->name} telah di-assign ke {$technician->name}")
+                            ->title('Teknisi Berhasil di-Assign ✅')
+                            ->body("Order #{$record->id} dari {$record->user->name} telah di-assign ke {$technician->name}.")
                             ->success()
                             ->send();
                     }),
 
                 EditAction::make(),
-                DeleteBulkAction::make(),
             ])
 
             ->toolbarActions([

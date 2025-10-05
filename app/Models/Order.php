@@ -52,7 +52,11 @@ class Order extends Model
         return $this->belongsTo(Package::class, 'package_id');
     }
 
-    
+    public function selectedProducts()
+    {
+        return $this->belongsToMany(Product::class, 'order_product', 'order_id', 'product_id');
+    }
+
     // Relasi ke order assignments
     public function orderAssignments(): HasMany
     {

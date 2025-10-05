@@ -21,14 +21,17 @@ return new class extends Migration
 
             // Relasi ke service, product, package
             $table->foreignId('service_id')
+                ->nullable()
                   ->constrained('services')
                   ->cascadeOnDelete();
 
             $table->foreignId('product_id')
+                  ->nullable()
                   ->constrained('products')
                   ->cascadeOnDelete();
 
             $table->foreignId('package_id')
+                  ->nullable()
                   ->constrained('packages')
                   ->cascadeOnDelete();
 
@@ -43,6 +46,7 @@ return new class extends Migration
             $table->date('service_date')->nullable();
             $table->time('time_slot')->nullable();
             $table->string('address')->nullable();
+            $table->text('note')->nullable();
 
             // Status order (tambahkan 'assigned' supaya sesuai dengan proses update)
             $table->enum('status', ['pending', 'assigned', 'in_progress', 'completed', 'cancelled'])
