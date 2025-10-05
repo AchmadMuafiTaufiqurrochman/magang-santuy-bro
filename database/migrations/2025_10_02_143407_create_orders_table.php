@@ -46,7 +46,6 @@ return new class extends Migration
             $table->date('service_date')->nullable();
             $table->time('time_slot')->nullable();
             $table->string('address')->nullable();
-            $table->text('note')->nullable();
 
             // Status order (tambahkan 'assigned' supaya sesuai dengan proses update)
             $table->enum('status', ['pending', 'assigned', 'in_progress', 'completed', 'cancelled'])

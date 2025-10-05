@@ -45,6 +45,9 @@ class OrderForm
                 ->searchable()
                 ->nullable(),
 
+
+
+
             /**
              * ORDER STATUS
              */
@@ -143,7 +146,7 @@ class OrderForm
             /**
              * NOTES
              */
-            Textarea::make('note')
+            Textarea::make('notes')
                 ->label('Additional Notes')
                 ->rows(2)
                 ->maxLength(255),
@@ -152,9 +155,9 @@ class OrderForm
              * TOTAL PRICE
              */
             TextInput::make('total_price')
-                ->label('💰 Total Price')
+                ->label('Total Price')
                 ->disabled()
-                ->dehydrated(true) // supaya tersimpan ke DB
+                ->dehydrated(true)
                 ->default(0)
                 ->prefix('Rp')
                 ->afterStateHydrated(function ($component, $get, $state) {

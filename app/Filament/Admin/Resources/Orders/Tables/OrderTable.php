@@ -44,8 +44,14 @@ class OrdersTable
                     ->limit(40)
                     ->tooltip(fn($state) => strlen($state) > 40 ? $state : null),
 
+                TextColumn::make('notes')
+                    ->label('Notes')
+                    ->limit(30)
+                    ->tooltip(fn($state) => strlen($state) > 30 ? $state : null)
+                    ->placeholder('-'),
+
                 TextColumn::make('total_price')
-                    ->label('💰 Total')
+                    ->label(' Total')
                     ->money('IDR')
                     ->color('success')
                     ->weight(FontWeight::Bold)
