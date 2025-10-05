@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class Register extends Page
 {
-    protected static string $view = 'filament.pages.auth.register';
+    protected string $view = 'filament.pages.auth.register';
 
     protected function getFormSchema(): array
     {
@@ -39,13 +39,13 @@ class Register extends Page
                 ->required(),
 
             // Optional: Role jika kamu ingin user memilih role
-            // Select::make('role')
-            //     ->options([
-            //         'customer' => 'Customer',
-            //         'technician' => 'Technician',
-            //     ])
-            //     ->default('customer')
-            //     ->required(),
+            Select::make('role')
+                ->options([
+                    'customer' => 'Customer',
+                    'technician' => 'Technician',
+                ])
+                ->default('customer')
+                ->required(),
         ];
     }
 

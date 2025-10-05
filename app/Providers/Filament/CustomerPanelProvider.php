@@ -28,7 +28,7 @@ class CustomerPanelProvider extends PanelProvider
         ->path('customer')
         ->login()
         ->colors([
-            'primary' => Color::Blue,
+            'primary' => Color::Green,
             ])
             ->resources([
                 OrderResource::class,

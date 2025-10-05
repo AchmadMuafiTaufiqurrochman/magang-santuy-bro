@@ -1,24 +1,34 @@
-<!-- resources/views/auth/login.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SiTukang</title>
+    <title>Register - SiTukang</title>
     @vite('resources/css/app.css')
 </head>
 <body class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
     <div class="w-full max-w-md bg-white shadow-lg rounded-2xl p-8">
-        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Login</h2>
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Daftar Akun</h2>
 
-        <form method="POST" action="{{ route('login') }}" class="space-y-5">
+        <form method="POST" action="{{ route('register') }}" class="space-y-5">
             @csrf
+
+            <!-- Name -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                <input type="text" id="name" name="name" required
+                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
 
             <!-- Email -->
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input type="email" id="email" name="email" required
                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+
+            <div>
+
             </div>
 
             <!-- Password -->
@@ -28,23 +38,26 @@
                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
             </div>
 
+            <!-- Confirm Password -->
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" required
+                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+
             <!-- Button -->
             <div>
                 <button type="submit"
                         class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    Login
+                    Daftar
                 </button>
             </div>
         </form>
-        <p class="text-center text-sm text-gray-600 mt-4">
-            Belum punya akun?
-            <a href="{{ route('register') }}" class="text-indigo-600 hover:underline">Daftar di sini</a>
-        </p>
 
-        {{-- <p class="text-center text-sm text-gray-600 mt-4">
-            Lupa password?
-            <a href="{{ route('password.request') }}" class="text-indigo-600 hover:underline">Reset di sini</a>
-        </p> --}}
+        <p class="text-center text-sm text-gray-600 mt-4">
+            Sudah punya akun?
+            <a href="{{ route('login') }}" class="text-indigo-600 hover:underline">Login di sini</a>
+        </p>
 
         <!-- Error messages -->
         @if ($errors->any())
