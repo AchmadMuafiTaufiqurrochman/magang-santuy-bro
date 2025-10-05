@@ -32,12 +32,24 @@ class OrdersTable
                     ->color(fn($record) => $record->technician ? 'success' : 'danger')
                     ->weight(FontWeight::Medium),
 
-                TextColumn::make('service.name')->label('Service')->sortable(),
-                TextColumn::make('product.name')->label('Product')->sortable(),
-                TextColumn::make('package.name')->label('Package')->placeholder('-')->sortable(),
+                TextColumn::make('service.name')
+                    ->label('Service')
+                    ->sortable(),
+                TextColumn::make('product.name')
+                    ->label('Product')
+                    ->sortable(),
+                TextColumn::make('package.name')
+                    ->label('Package')
+                    ->placeholder('-')
+                    ->sortable(),
 
-                TextColumn::make('service_date')->label('Service Date')->date('d M Y')->sortable(),
-                TextColumn::make('time_slot')->label('Time Slot')->sortable(),
+                TextColumn::make('service_date')
+                    ->label('Service Date')
+                    ->date('d M Y')
+                    ->sortable(),
+                TextColumn::make('time_slot')
+                    ->label('Time Slot')
+                    ->sortable(),
 
                 TextColumn::make('address')
                     ->label('Address')
