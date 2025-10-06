@@ -27,8 +27,41 @@
                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
             </div>
 
+            <!-- Phone Number -->
             <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+                <input type="text" id="phone" name="phone" required
+                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
 
+            <!-- Province -->
+            <div>
+                <label for="province" class="block text-sm font-medium text-gray-700">Provinsi</label>
+                <select id="province" name="province" required
+                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">Pilih Provinsi</option>
+                    <option value="Jawa Timur">Jawa Timur</option>
+                </select>
+            </div>
+
+            <!-- City -->
+            <div>
+                <label for="city" class="block text-sm font-medium text-gray-700">Kota/Kabupaten</label>
+                <select id="city" name="city" required
+                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">Pilih Kota</option>
+                    <option value="Sidoarjo">Sidoarjo</option>
+                    <option value="Surabaya">Surabaya</option>
+                </select>
+            </div>
+
+            <!-- District -->
+            <div>
+                <label for="district" class="block text-sm font-medium text-gray-700">Kecamatan</label>
+                <select id="district" name="district" required
+                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">Pilih Kecamatan</option>
+                </select>
             </div>
 
             <!-- Password -->
@@ -56,7 +89,7 @@
 
         <p class="text-center text-sm text-gray-600 mt-4">
             Sudah punya akun?
-            <a href="{{ route('login') }}" class="text-indigo-600 hover:underline">Login di sini</a>
+            <a href="{{ route('login') }}" class="text-indigo-600 hover:underline font-bold">Login di sini</a>
         </p>
 
         <!-- Error messages -->
@@ -70,5 +103,34 @@
             </div>
         @endif
     </div>
+
+    <script>
+        // Data kecamatan untuk Sidoarjo & Surabaya
+        const districts = {
+            Sidoarjo: [
+                "Candi", "Buduran", "Sedati", "Taman", "Waru", "Porong", "Krian", "Tanggulangin", "Balongbendo"
+            ],
+            Surabaya: [
+                "Wonokromo", "Rungkut", "Sukolilo", "Tegalsari", "Genteng", "Gubeng", "Kenjeran", "Tambaksari", "Wiyung"
+            ]
+        };
+
+        const citySelect = document.getElementById('city');
+        const districtSelect = document.getElementById('district');
+
+        citySelect.addEventListener('change', function() {
+            const selectedCity = this.value;
+            districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+
+            if (districts[selectedCity]) {
+                districts[selectedCity].forEach(d => {
+                    const option = document.createElement('option');
+                    option.value = d;
+                    option.textContent = d;
+                    districtSelect.appendChild(option);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

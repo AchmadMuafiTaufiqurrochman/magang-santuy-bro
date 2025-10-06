@@ -38,7 +38,7 @@
         </form>
         <p class="text-center text-sm text-gray-600 mt-4">
             Belum punya akun?
-            <a href="{{ route('register') }}" class="text-indigo-600 hover:underline">Daftar di sini</a>
+            <a href="{{ route('register') }}" class="text-indigo-600 hover:underline font-bold">Daftar di sini</a>
         </p>
 
         {{-- <p class="text-center text-sm text-gray-600 mt-4">

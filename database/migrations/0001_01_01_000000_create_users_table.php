@@ -15,8 +15,9 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('email', 100)->unique()->nullable();
             $table->string('phone', 20)->unique();
-            $table->string('city')->nullable();
             $table->string('province')->nullable();
+            $table->string('city')->nullable();
+            $table->string('district')->nullable();
             $table->string('password')->nullable();
 
             // Role & Status
