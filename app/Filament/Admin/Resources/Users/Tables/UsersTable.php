@@ -35,7 +35,7 @@ class UsersTable
                     ->sortable()
                     ->toggleable(),
 
-                BadgeColumn::make('role')
+                TextColumn::make('role')
                     ->label('Role')
                     ->colors([
                         'primary' => 'admin',
@@ -43,8 +43,7 @@ class UsersTable
                         'warning' => 'technician',
                     ])
                     ->sortable(),
-
-                BadgeColumn::make('status')
+                TextColumn::make('status')
                     ->label('Status')
                     ->colors([
                         'success' => 'active',

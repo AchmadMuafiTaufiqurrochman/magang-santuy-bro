@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Filament</title>
+    <title>Login - SiTukang</title>
     @vite('resources/css/app.css')
 </head>
 <body class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -28,8 +28,6 @@
                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
             </div>
 
-            
-
             <!-- Button -->
             <div>
                 <button type="submit"
@@ -38,6 +36,15 @@
                 </button>
             </div>
         </form>
+        <p class="text-center text-sm text-gray-600 mt-4">
+            Belum punya akun?
+            <a href="{{ route('register') }}" class="text-indigo-600 hover:underline font-bold">Daftar di sini</a>
+        </p>
+
+        {{-- <p class="text-center text-sm text-gray-600 mt-4">
+            Lupa password?
+            <a href="{{ route('password.request') }}" class="text-indigo-600 hover:underline">Reset di sini</a>
+        </p> --}}
 
         <!-- Error messages -->
         @if ($errors->any())

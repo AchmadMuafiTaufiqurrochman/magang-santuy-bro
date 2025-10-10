@@ -7,6 +7,7 @@ use BackedEnum;
 use Livewire\Attributes\Computed;
 use App\Models\OrderAssignment;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class Dashboard extends Page
 {
@@ -19,12 +20,12 @@ class Dashboard extends Page
     #[Computed]
     public function isAvailable(): bool
     {
-        return auth()->user()->technician_status === 'available';
+        return Auth::user()->technician_status === 'available';
     }
 
     public function toggleAvailability(): void
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $currentStatus = $user->technician_status ?? 'offline';
 
         $newStatus = $currentStatus === 'available' ? 'offline' : 'available';
@@ -38,16 +39,16 @@ class Dashboard extends Page
     #[Computed]
     public function todayOrders()
     {
-        return \App\Models\OrderAssignment::where('technician_id', auth()->id())
+        return \App\Models\OrderAssignment::where('technician_id', Auth::id())
             ->whereDate('assigned_at', today())
             ->with('order.user', 'order.package')
             ->get();
     }
 
-    #[Computed] 
+    #[Computed]
     public function completedToday()
     {
-        return \App\Models\OrderAssignment::where('technician_id', auth()->id())
+        return \App\Models\OrderAssignment::where('technician_id', Auth::id())
             ->whereHas('order', function($query) {
                 $query->where('status', 'done');
             })
@@ -60,7 +61,7 @@ class Dashboard extends Page
     {
         $weekStart = now()->startOfWeek();
         $weekEnd = now()->endOfWeek();
-        return \App\Models\OrderAssignment::where('technician_id', auth()->id())
+        return \App\Models\OrderAssignment::where('technician_id', Auth::id())
             ->whereBetween('assigned_at', [$weekStart, $weekEnd])
             ->count();
     }
@@ -68,7 +69,7 @@ class Dashboard extends Page
     #[Computed]
     public function monthCount()
     {
-        return \App\Models\OrderAssignment::where('technician_id', auth()->id())
+        return \App\Models\OrderAssignment::where('technician_id', Auth::id())
             ->whereMonth('assigned_at', now()->month)
             ->count();
     }
@@ -76,7 +77,7 @@ class Dashboard extends Page
     #[Computed]
     public function recentActivity()
     {
-        return \App\Models\OrderAssignment::where('technician_id', auth()->id())
+        return \App\Models\OrderAssignment::where('technician_id', Auth::id())
             ->with('order.package', 'order.user')
             ->orderBy('assigned_at', 'desc')
             ->take(5)
@@ -86,7 +87,7 @@ class Dashboard extends Page
     #[Computed]
     public function pendingOrders()
     {
-        return \App\Models\OrderAssignment::where('technician_id', auth()->id())
+        return \App\Models\OrderAssignment::where('technician_id', Auth::id())
             ->whereHas('order', function($query) {
                 $query->whereIn('status', ['assigned', 'in_progress']);
             })
@@ -95,11 +96,11 @@ class Dashboard extends Page
             ->get();
     }
 
-    #[Computed] 
+    #[Computed]
     public function newAssignments()
     {
         // Orders yang baru di-assign dalam 24 jam terakhir dan belum di-accept
-        return \App\Models\OrderAssignment::where('technician_id', auth()->id())
+        return \App\Models\OrderAssignment::where('technician_id', Auth::id())
             ->whereHas('order', function($query) {
                 $query->where('status', 'assigned');
             })
@@ -112,12 +113,12 @@ class Dashboard extends Page
     public function acceptOrder($assignmentId)
     {
         $assignment = \App\Models\OrderAssignment::where('id', $assignmentId)
-            ->where('technician_id', auth()->id())
+            ->where('technician_id', Auth::id())
             ->first();
 
         if ($assignment) {
             $assignment->order->update(['status' => 'in_progress']);
-            
+
             \Filament\Notifications\Notification::make()
                 ->title('Order Accepted!')
                 ->body("Order #{$assignment->order->id} has been accepted and is now in progress.")
@@ -132,14 +133,14 @@ class Dashboard extends Page
     public function rejectOrder($assignmentId)
     {
         $assignment = \App\Models\OrderAssignment::where('id', $assignmentId)
-            ->where('technician_id', auth()->id())
+            ->where('technician_id', Auth::id())
             ->first();
 
         if ($assignment) {
             // Delete the assignment and reset order status to pending
             $assignment->order->update(['status' => 'pending']);
             $assignment->delete();
-            
+
             \Filament\Notifications\Notification::make()
                 ->title('Order Rejected')
                 ->body("Order #{$assignment->order->id} has been rejected and returned to pending status.")

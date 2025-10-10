@@ -21,8 +21,8 @@ class User extends Authenticatable implements FilamentUser
         'phone',
         'password',
         'role',
-        'status',
-        'technician_status',
+        'status',           // active / inactive
+        'technician_status' // optional, misal untuk technician busy / available
     ];
 
     protected $casts = [
@@ -31,16 +31,35 @@ class User extends Authenticatable implements FilamentUser
     ];
 
     /**
-     * Relasi ke Order
+     * ================================
+     * RELASI KE ORDERS
+     * ================================
      */
-    public function orders(): HasMany
+
+    // Orders yang dibuat sebagai customer
+    public function customerOrders(): HasMany
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    // Orders yang ditugaskan ke technician
+    public function technicianOrders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'technician_id');
+    }
+
+    // Relasi ke assignments (jika ada tabel order_assignments)
+    public function orderAssignments(): HasMany
+    {
+        return $this->hasMany(OrderAssignment::class, 'technician_id');
     }
 
     /**
-     * Tentukan akses ke panel sesuai role & status
+     * ================================
+     * FILAMENT PANEL ACCESS
+     * ================================
      */
+
     public function canAccessPanel(Panel $panel): bool
     {
         if ($this->status !== 'active') {
