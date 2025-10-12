@@ -5,6 +5,7 @@ namespace App\Filament\Customer\Pages;
 use Filament\Pages\Page;
 use App\Filament\Customer\Widgets\CustomerStatsWidget;
 use App\Filament\Customer\Widgets\CustomerOrdersChart;
+use App\Filament\Customer\Widgets\CustomerRecentOrdersWidget;
 use BackedEnum;
 
 class Dashboard extends Page
@@ -21,6 +22,13 @@ class Dashboard extends Page
         return [
             CustomerStatsWidget::class,
             CustomerOrdersChart::class,
+        ];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [
+            CustomerRecentOrdersWidget::class,
         ];
     }
 }
