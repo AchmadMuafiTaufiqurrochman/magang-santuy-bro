@@ -20,8 +20,23 @@ class Order extends Model
         'status',
         'time_slot',
         'address',
+
         'note',
         'total_price',
+
+        'note', // Akan menggunakan field note untuk menyimpan info products juga
+        'technician_notes',
+        'completion_photo',
+        'completion_notes',
+        'completed_at',
+        'status',
+    ];
+
+    protected $casts = [
+        'date' => 'date',
+        'time_slot' => 'datetime:H:i',
+        'completed_at' => 'datetime',
+
     ];
 
     // Customer

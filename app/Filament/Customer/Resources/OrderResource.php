@@ -42,7 +42,7 @@ class OrderResource extends Resource
             ->searchable()
             ->preload()
             ->live()
-            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending']))
+            ->disabled(fn ($record) => $record && $record->status && !in_array($record->status, ['pending']))
             ->afterStateUpdated(function ($state, $set, $get) {
                 $set('price_calculation', static::calculateTotalPrice($get));
             })
@@ -60,7 +60,7 @@ class OrderResource extends Resource
             ->searchable()
             ->preload()
             ->live()
-            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending']))
+            ->disabled(fn ($record) => $record && $record->status && !in_array($record->status, ['pending']))
             ->afterStateUpdated(function ($state, $set, $get) {
                 $set('price_calculation', static::calculateTotalPrice($get));
             })
@@ -76,7 +76,7 @@ class OrderResource extends Resource
             ->required()
             ->minDate(now()->addDay())
             ->maxDate(now()->addMonths(3))
-            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending']))
+            ->disabled(fn ($record) => $record && $record->status && !in_array($record->status, ['pending']))
             ->helperText('Select your preferred service date'),
 
         Forms\Components\TimePicker::make('time_slot')
@@ -85,7 +85,7 @@ class OrderResource extends Resource
             ->seconds(false)
             ->minutesStep(30)
             ->default('09:00')
-            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending']))
+            ->disabled(fn ($record) => $record && $record->status && !in_array($record->status, ['pending']))
             ->helperText('Choose your preferred time slot'),
 
         Forms\Components\Textarea::make('address')
@@ -94,14 +94,14 @@ class OrderResource extends Resource
             ->rows(3)
             ->maxLength(500)
             ->placeholder('Please provide your complete address for service delivery...')
-            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending'])),
+            ->disabled(fn ($record) => $record && $record->status && !in_array($record->status, ['pending'])),
 
         Forms\Components\Textarea::make('note')
             ->label('Additional Notes')
             ->rows(2)
             ->maxLength(255)
             ->placeholder('Any special instructions or requests...')
-            ->disabled(fn ($record) => $record && !in_array($record->status, ['pending'])),
+            ->disabled(fn ($record) => $record && $record->status && !in_array($record->status, ['pending'])),
 
         // === ORDER SUMMARY ===
         Forms\Components\TextInput::make('price_calculation')
@@ -243,7 +243,34 @@ class OrderResource extends Resource
                     'done' => 'success',
                     'cancelled' => 'danger',
                 })
-                ->formatStateUsing(fn (string $state): string => ucfirst(str_replace('_', ' ', $state))),
+                ->formatStateUsing(fn (string $state): string => match ($state) {
+                    'done' => '✅ Done',
+                    'in_progress' => '🔄 In Progress',
+                    'assigned' => '📝 Assigned',
+                    'pending' => '⏳ Pending',
+                    'cancelled' => '❌ Cancelled',
+                    default => ucfirst(str_replace('_', ' ', $state))
+                }),
+
+            TextColumn::make('completion_info')
+                ->label('📷 Completion')
+                ->getStateUsing(function ($record) {
+                    if ($record && $record->status === 'done') {
+                        $text = '';
+                        if ($record->completion_photo) {
+                            $text .= '📸 Photo Available';
+                        }
+                        if ($record->completed_at) {
+                            $completedDate = $record->completed_at->format('d M Y H:i');
+                            $text .= ($text ? "\n" : '') . "⏰ " . $completedDate;
+                        }
+                        return $text ?: '✅ Completed';
+                    }
+                    return '-';
+                })
+                ->wrap()
+                ->visible(fn ($record) => $record && $record->status === 'done')
+                ->color('success'),
 
             // KOLOM 💰 TOTAL PRICE (seperti di create form)
             TextColumn::make('total_price')
@@ -334,22 +361,22 @@ class OrderResource extends Resource
         // 2) Edit action
         if (class_exists(\Filament\Tables\Actions\EditAction::class)) {
             $actions[] = \Filament\Tables\Actions\EditAction::make()
-                ->visible(fn (Order $record): bool => in_array($record->status, ['pending']));
+                ->visible(fn (Order $record): bool => $record && $record->status && in_array($record->status, ['pending']));
         } elseif (class_exists(\Filament\Actions\EditAction::class)) {
             $actions[] = \Filament\Actions\EditAction::make()
-                ->visible(fn (Order $record): bool => in_array($record->status, ['pending']));
+                ->visible(fn (Order $record): bool => $record && $record->status && in_array($record->status, ['pending']));
         } elseif (class_exists(\Filament\Tables\Actions\Action::class)) {
             $actions[] = \Filament\Tables\Actions\Action::make('edit')
                 ->label('Edit')
                 ->icon('heroicon-o-pencil')
                 ->url(fn (Order $record): string => static::getUrl('edit', ['record' => $record]))
-                ->visible(fn (Order $record): bool => in_array($record->status, ['pending']));
+                ->visible(fn (Order $record): bool => $record && $record->status && in_array($record->status, ['pending']));
         } elseif (class_exists(\Filament\Actions\Action::class)) {
             $actions[] = \Filament\Actions\Action::make('edit')
                 ->label('Edit')
                 ->icon('heroicon-o-pencil')
                 ->url(fn (Order $record): string => static::getUrl('edit', ['record' => $record]))
-                ->visible(fn (Order $record): bool => in_array($record->status, ['pending']));
+                ->visible(fn (Order $record): bool => $record && $record->status && in_array($record->status, ['pending']));
         }
 
         // 3) Custom cancel action (jika available)
@@ -359,7 +386,7 @@ class OrderResource extends Resource
                 ->icon('heroicon-o-x-mark')
                 ->color('danger')
                 ->requiresConfirmation()
-                ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'assigned']))
+                ->visible(fn (Order $record): bool => $record && $record->status && in_array($record->status, ['pending', 'assigned']))
                 ->action(fn (Order $record) => $record->update(['status' => 'cancelled']));
         } elseif (class_exists(\Filament\Actions\Action::class)) {
             $actions[] = \Filament\Actions\Action::make('cancel')
@@ -367,7 +394,7 @@ class OrderResource extends Resource
                 ->icon('heroicon-o-x-mark')
                 ->color('danger')
                 ->requiresConfirmation()
-                ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'assigned']))
+                ->visible(fn (Order $record): bool => $record && $record->status && in_array($record->status, ['pending', 'assigned']))
                 ->action(fn (Order $record) => $record->update(['status' => 'cancelled']));
         }
 

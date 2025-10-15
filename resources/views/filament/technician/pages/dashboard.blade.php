@@ -1,17 +1,17 @@
 <x-filament-panels::page>
-    <div class="max-w-4xl mx-auto">
+    <div class="space-y-6">
 
         <!-- Status Toggle -->
-        <div class="bg-white rounded-lg p-6 shadow-sm border mb-6">
+        <div class="bg-white rounded-lg p-6 shadow-sm border">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900">Status Ketersediaan</h3>
-                    <p class="text-sm text-gray-600 mt-1">Aktifkan untuk menerima tugas baru</p>
+                    <h3 class="text-lg font-semibold text-gray-900">👨‍🔧 Status Ketersediaan</h3>
+                    <p class="text-sm text-gray-600 mt-1">Aktifkan untuk menerima tugas baru dari admin</p>
                 </div>
 
                 <div class="flex items-center space-x-3">
                     <span class="text-sm font-medium {{ $this->isAvailable ? 'text-green-600' : 'text-red-600' }}">
-                        {{ $this->isAvailable ? 'Aktif' : 'Tidak Aktif' }}
+                        {{ $this->isAvailable ? '🟢 Online - Tersedia' : '🔴 Offline - Tidak Tersedia' }}
                     </span>
                     <label class="relative inline-flex cursor-pointer">
                         <input type="checkbox" class="sr-only peer" {{ $this->isAvailable ? 'checked' : '' }}
@@ -24,182 +24,125 @@
             </div>
         </div>
 
-        <!-- New Assignment Notifications -->
-        @if($this->newAssignments->count() > 0)
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-lg">
-            <div class="flex items-center mb-3">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-yellow-800">
-                        🔔 Order Baru Ditugaskan ({{ $this->newAssignments->count() }})
-                    </h3>
-                </div>
-            </div>
-            
-            <div class="space-y-3">
-                @foreach($this->newAssignments as $assignment)
-                <div class="bg-white p-4 rounded-lg border border-yellow-200">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h4 class="font-semibold text-gray-900">Order #{{ $assignment->order->id }}</h4>
-                            <p class="text-sm text-gray-600">Customer: {{ $assignment->order->user->name }}</p>
-                            <p class="text-sm text-gray-600">Service: {{ $assignment->order->package->name ?? 'Custom Service' }}</p>
-                            <p class="text-sm text-gray-500">Assigned: {{ $assignment->assigned_at->diffForHumans() }}</p>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button 
-                                wire:click="acceptOrder({{ $assignment->id }})"
-                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm font-medium">
-                                ✅ Accept
-                            </button>
-                            <button 
-                                wire:click="rejectOrder({{ $assignment->id }})"
-                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium">
-                                ❌ Reject
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="text-xs text-gray-500 border-t pt-2">
-                        <p><strong>Date:</strong> {{ $assignment->order->date->format('d M Y') }}</p>
-                        <p><strong>Time:</strong> {{ $assignment->order->time_slot->format('H:i') }}</p>
-                        <p><strong>Address:</strong> {{ Str::limit($assignment->order->address, 50) }}</p>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
+        <!-- Orders Table -->
 
-        <!-- Current Active Orders -->
-        @if($this->pendingOrders->count() > 0)
-        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-lg">
-            <div class="flex items-center mb-3">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-blue-800">
-                        📋 Order Aktif ({{ $this->pendingOrders->count() }})
-                    </h3>
-                </div>
-            </div>
-            
-            <div class="grid gap-3 md:grid-cols-2">
-                @foreach($this->pendingOrders as $assignment)
-                <div class="bg-white p-3 rounded-lg border border-blue-200">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h4 class="font-medium text-gray-900">Order #{{ $assignment->order->id }}</h4>
-                            <p class="text-sm text-gray-600">{{ $assignment->order->user->name }}</p>
-                            <p class="text-xs text-gray-500">{{ $assignment->order->package->name ?? 'Custom Service' }}</p>
-                        </div>
-                        <span class="bg-{{ $assignment->order->status === 'assigned' ? 'yellow' : 'blue' }}-100 text-{{ $assignment->order->status === 'assigned' ? 'yellow' : 'blue' }}-800 px-2 py-1 rounded-full text-xs">
-                            {{ $assignment->order->status === 'assigned' ? '📝 Assigned' : '🔄 In Progress' }}
-                        </span>
-                    </div>
-                    
-                    <div class="text-xs text-gray-500 mt-2 border-t pt-2">
-                        <p>📅 {{ $assignment->order->date->format('d M Y') }} • {{ $assignment->order->time_slot->format('H:i') }}</p>
-                        <p>📍 {{ Str::limit($assignment->order->address, 40) }}</p>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
 
-        <!-- Menu Buttons -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <!-- Jadwal Button -->
-            <button
-                class="bg-blue-500 hover:bg-blue-600 text-white p-8 rounded-lg shadow-sm transition-colors duration-200 text-left">
-                <div class="flex items-center space-x-4">
-                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
-                        <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                            </path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold">Jadwal</h3>
-                        <p class="text-blue-100 text-sm">Lihat jadwal tugas hari ini</p>
-                        <div class="text-2xl font-bold mt-2">{{ $this->todayOrders->count() }}</div>
-                        <div class="text-blue-200 text-xs">Tugas hari ini</div>
-                    </div>
-                </div>
-            </button>
 
-            <!-- Report Button -->
-            <button
-                class="bg-green-500 hover:bg-green-600 text-white p-8 rounded-lg shadow-sm transition-colors duration-200 text-left">
-                <div class="flex items-center space-x-4">
-                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
-                        <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                            </path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold">Report</h3>
-                        <p class="text-green-100 text-sm">Lihat laporan aktivitas</p>
-                        <div class="text-2xl font-bold mt-2">{{ $this->completedToday }}</div>
-                        <div class="text-green-200 text-xs">Selesai hari ini</div>
-                    </div>
-                </div>
-            </button>
-
-            <!-- Tasks This Week -->
-            <button
-                class="bg-purple-500 hover:bg-purple-600 text-white p-8 rounded-lg shadow-sm transition-colors duration-200 text-left">
-                <div class="flex items-center space-x-4">
-                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
-                        <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold">Minggu Ini</h3>
-                        <p class="text-purple-100 text-sm">Total tugas minggu ini</p>
-                        <div class="text-2xl font-bold mt-2">{{ $this->weekCount }}</div>
-                        <div class="text-purple-200 text-xs">Tugas minggu ini</div>
-                    </div>
-                </div>
-            </button>
-
-            <!-- Tasks This Month -->
-            <button
-                class="bg-orange-500 hover:bg-orange-600 text-white p-8 rounded-lg shadow-sm transition-colors duration-200 text-left">
-                <div class="flex items-center space-x-4">
-                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
-                        <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                            </path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold">Bulan Ini</h3>
-                        <p class="text-orange-100 text-sm">Total tugas bulan ini</p>
-                        <div class="text-2xl font-bold mt-2">{{ $this->monthCount }}</div>
-                        <div class="text-orange-200 text-xs">Tugas bulan ini</div>
-                    </div>
-                </div>
-            </button>
-
+        <div class="bg-white rounded-lg shadow-sm border">
+            {{ $this->table }}
         </div>
 
     </div>
+
+    <!-- Camera Modal -->
+    @if($showCameraModal)
+    <div class="fixed inset-0 bg-black z-50" style="z-index: 9999;">
+        <div class="w-full h-full flex flex-col">
+            <!-- Header -->
+            <div class="bg-gray-900 p-4 flex justify-between items-center">
+                <h3 class="text-white text-lg font-semibold">📷 Complete Order #{{ $selectedOrderId }}</h3>
+                <button wire:click="closeCameraModal" class="text-white hover:text-gray-300 p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Camera Status -->
+            <div id="camera-status" class="bg-yellow-600 text-white text-center py-3 px-4 text-sm font-medium">
+                📷 Initializing camera...
+            </div>
+
+            <!-- Camera Container -->
+            <div class="flex-1 relative bg-black">
+                @if(!$capturedPhotoData)
+                    <!-- Camera Preview -->
+                    <div class="w-full h-full relative">
+                        <video id="camera-preview" class="w-full h-full object-cover" autoplay playsinline muted></video>
+                        <canvas id="camera-canvas" class="hidden"></canvas>
+                        
+                        <!-- Camera overlay -->
+                        <div class="absolute inset-0 pointer-events-none">
+                            <div class="absolute inset-4 border-2 border-white border-opacity-50 rounded-lg"></div>
+                        </div>
+                    </div>
+                @else
+                    <!-- Captured Photo Preview -->
+                    <div class="w-full h-full flex flex-col items-center justify-center p-4">
+                        <img src="{{ $capturedPhotoData }}" class="max-w-full max-h-full object-contain rounded-lg" alt="Captured photo">
+                        
+                        <!-- Notes Section -->
+                        <div class="w-full max-w-md mt-4">
+                            <label class="block text-white text-sm font-medium mb-2">
+                                📝 Catatan Penyelesaian (Opsional)
+                            </label>
+                            <textarea 
+                                wire:model="completionNotes" 
+                                rows="3" 
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Tambahkan catatan tentang penyelesaian pekerjaan..."></textarea>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Camera Controls -->
+            <div class="bg-gray-900 p-6">
+                @if(!$capturedPhotoData)
+                    <!-- Capture Controls -->
+                    <!-- Control Buttons Row 1 -->
+                    <div class="flex justify-center items-center space-x-4 mb-4">
+                        <button wire:click="closeCameraModal" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm transition-colors">
+                            ❌ Cancel
+                        </button>
+                        <button onclick="initCamera()" class="px-3 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-xs transition-colors">
+                            🔄 Retry Camera
+                        </button>
+                        <button onclick="switchCamera()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors">
+                            🔄 Switch Cam
+                        </button>
+                    </div>
+                    
+                    <!-- Main Capture Button -->
+                    <div class="flex justify-center items-center">
+                        <button onclick="capturePhoto()" class="w-28 h-28 bg-white rounded-full border-4 border-gray-300 hover:border-blue-500 flex items-center justify-center shadow-2xl transform hover:scale-110 transition-all duration-200 relative group">
+                            <div class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center group-hover:bg-red-700 transition-colors">
+                                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <!-- Alternative Text Button -->
+                    <div class="flex justify-center mt-4">
+                        <button onclick="capturePhoto()" class="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold text-lg transition-colors shadow-lg">
+                            � TAKE PHOTO
+                        </button>
+                    </div>
+                    <p class="text-gray-300 text-center text-sm mt-3">📸 Choose your capture method:</p>
+                    <p class="text-gray-400 text-center text-xs mt-1">• Tap the RED CIRCLE button, OR</p>
+                    <p class="text-gray-400 text-center text-xs">• Tap the "TAKE PHOTO" button</p>
+                    <p class="text-gray-500 text-center text-xs mt-2">Make sure you are online to complete the order</p>
+                @else
+                    <!-- Photo Review Controls -->
+                    <div class="flex justify-center items-center space-x-4">
+                        <button wire:click="retakePhoto" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors">
+                            🔄 Retake Photo
+                        </button>
+                        <button wire:click="completeOrder" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors" wire:loading.attr="disabled">
+                            <span wire:loading.remove>✅ Complete Order</span>
+                            <span wire:loading>⏳ Processing...</span>
+                        </button>
+                    </div>
+                    <p class="text-gray-300 text-center text-sm mt-3">✅ Photo captured successfully!</p>
+                    <p class="text-gray-400 text-center text-xs mt-1">Add notes (optional) and complete the order</p>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Loading State -->
     <div wire:loading class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -213,4 +156,241 @@
             <span class="text-gray-700">Updating status...</span>
         </div>
     </div>
+
+    <!-- Camera JavaScript -->
+    <script>
+        let currentStream = null;
+        let currentCamera = 'environment'; // 'user' for front camera, 'environment' for back camera
+
+        // Initialize camera when modal opens
+        document.addEventListener('livewire:updated', function () {
+            if (@json($showCameraModal) && !@json($capturedPhotoData)) {
+                // Prevent body scroll when camera modal is open
+                document.body.style.overflow = 'hidden';
+                setTimeout(initCamera, 300);
+            } else if (!@json($showCameraModal)) {
+                // Restore body scroll when modal is closed
+                document.body.style.overflow = '';
+            }
+        });
+
+        async function initCamera() {
+            const statusDiv = document.getElementById('camera-status');
+            const video = document.getElementById('camera-preview');
+            
+            if (!video) return;
+
+            try {
+                // Show loading status
+                if (statusDiv) {
+                    statusDiv.classList.remove('hidden');
+                    statusDiv.textContent = '📷 Requesting camera access...';
+                }
+
+                // Stop any existing stream
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
+
+                // Check if getUserMedia is supported
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Camera API not supported in this browser');
+                }
+                
+                // Try with camera constraints
+                const constraints = {
+                    video: {
+                        facingMode: currentCamera
+                    }
+                };
+
+                try {
+                    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                } catch (e) {
+                    // Fallback to basic video constraint
+                    currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                }
+                
+                video.srcObject = currentStream;
+                
+                // Wait for video to be ready
+                await new Promise((resolve, reject) => {
+                    video.onloadedmetadata = () => {
+                        video.play().then(() => {
+                            if (statusDiv) {
+                                statusDiv.classList.add('hidden');
+                                statusDiv.textContent = '';
+                            }
+                            resolve();
+                        }).catch(reject);
+                    };
+                    
+                    video.onerror = reject;
+                    setTimeout(() => reject(new Error('Video load timeout')), 10000);
+                });
+
+            } catch (error) {
+                let errorMessage = 'Cannot access camera. ';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMessage += 'Please grant camera permissions.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage += 'No camera found on this device.';
+                } else if (error.name === 'NotSupportedError') {
+                    errorMessage += 'Camera not supported on this browser.';
+                } else if (error.name === 'NotReadableError') {
+                    errorMessage += 'Camera is being used by another application.';
+                } else {
+                    errorMessage += 'Unknown error occurred.';
+                }
+
+                if (statusDiv) {
+                    statusDiv.textContent = '❌ ' + errorMessage;
+                    statusDiv.classList.add('bg-red-600');
+                    statusDiv.classList.remove('bg-yellow-600');
+                    statusDiv.classList.remove('hidden');
+                }
+            }
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('camera-preview');
+            const canvas = document.getElementById('camera-canvas');
+            
+            if (!video || !canvas) {
+                alert('Camera elements not found. Please try again.');
+                return;
+            }
+
+            if (!video.videoWidth || !video.videoHeight) {
+                alert('Camera not ready. Please wait for camera to load completely.');
+                return;
+            }
+
+            try {
+                const context = canvas.getContext('2d');
+
+                // Set canvas dimensions to match video
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                // Create flash effect
+                const flashDiv = document.createElement('div');
+                flashDiv.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: white;
+                    z-index: 99999;
+                    opacity: 0.8;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(flashDiv);
+                
+                // Remove flash after short delay
+                setTimeout(() => {
+                    document.body.removeChild(flashDiv);
+                }, 150);
+
+                // Draw video frame to canvas
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Get image data as base64
+                const photoData = canvas.toDataURL('image/jpeg', 0.9);
+
+                // Visual feedback
+                const statusDiv = document.getElementById('camera-status');
+                if (statusDiv) {
+                    statusDiv.textContent = '📸 Photo captured! Processing...';
+                    statusDiv.classList.remove('hidden', 'bg-red-600');
+                    statusDiv.classList.add('bg-green-600');
+                }
+
+                // Stop camera stream
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                    currentStream = null;
+                }
+
+                // Send to Livewire
+                @this.call('capturePhoto', photoData);
+
+            } catch (error) {
+                alert('Failed to capture photo: ' + error.message + '\nPlease try again.');
+            }
+        }
+
+        async function switchCamera() {
+            try {
+                currentCamera = currentCamera === 'environment' ? 'user' : 'environment';
+                await initCamera();
+            } catch (error) {
+                // Try without facingMode if switching fails
+                try {
+                    await initCameraWithoutFacing();
+                } catch (e) {
+                    alert('Camera switching failed. Please try again.');
+                }
+            }
+        }
+
+        // Fallback function without facingMode constraint
+        async function initCameraWithoutFacing() {
+            const statusDiv = document.getElementById('camera-status');
+            const video = document.getElementById('camera-preview');
+            
+            if (!video) return;
+
+            try {
+                if (statusDiv) {
+                    statusDiv.classList.remove('hidden');
+                    statusDiv.textContent = '📷 Trying default camera...';
+                }
+
+                // Stop existing stream
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
+
+                // Try with basic video constraint only
+                const constraints = { video: true };
+
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = currentStream;
+                
+                await new Promise((resolve, reject) => {
+                    video.onloadedmetadata = () => {
+                        video.play().then(() => {
+                            if (statusDiv) {
+                                statusDiv.classList.add('hidden');
+                            }
+                            resolve();
+                        }).catch(reject);
+                    };
+                    video.onerror = reject;
+                    setTimeout(() => reject(new Error('Timeout')), 10000);
+                });
+
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Clean up when modal closes
+        document.addEventListener('livewire:updated', function () {
+            if (!@json($showCameraModal) && currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+        });
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', function() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
 </x-filament-panels::page>
