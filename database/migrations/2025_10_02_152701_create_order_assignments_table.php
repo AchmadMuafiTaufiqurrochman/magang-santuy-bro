@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->foreignId('technician_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('assigned_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('assigned_at')->useCurrent();
+            $table->timestamps();
         });
     }
 

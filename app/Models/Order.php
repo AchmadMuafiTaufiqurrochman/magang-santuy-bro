@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
@@ -14,10 +12,18 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'technician_id',
+        'service_id',
+        'product_id',
         'package_id',
-        'date',
+        'service_date',
+        'status',
         'time_slot',
         'address',
+
+        'note',
+        'total_price',
+
         'note', // Akan menggunakan field note untuk menyimpan info products juga
         'technician_notes',
         'completion_photo',
@@ -30,75 +36,68 @@ class Order extends Model
         'date' => 'date',
         'time_slot' => 'datetime:H:i',
         'completed_at' => 'datetime',
+
     ];
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    // Alias customer untuk user (karena user adalah customer yang order)
-    public function customer(): BelongsTo
+    // Customer
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi ke technician melalui order assignments
-    public function technician(): BelongsTo
+    // Technician
+    public function technician()
     {
-        // Ambil technician dari order assignment pertama
-        $assignment = $this->orderAssignments()->first();
-        return $assignment ? $assignment->technician() : $this->belongsTo(User::class, 'user_id')->whereNull('id');
+        return $this->belongsTo(User::class, 'technician_id');
     }
 
-    public function package(): BelongsTo
+    public function service()
     {
-        return $this->belongsTo(Package::class);
+        return $this->belongsTo(Service::class, 'service_id');
     }
 
-    // Method untuk mendapatkan selected products dari note
-    public function getSelectedProductsAttribute()
+    public function product()
     {
-        if (str_contains($this->note, 'PRODUCTS:')) {
-            $parts = explode('PRODUCTS:', $this->note);
-            if (isset($parts[1])) {
-                $productIds = json_decode(trim($parts[1]), true);
-                return is_array($productIds) ? $productIds : [];
-            }
-        }
-        return [];
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
-    // Method untuk mendapatkan products yang dipilih
+    public function package()
+    {
+        return $this->belongsTo(Package::class, 'package_id');
+    }
+
     public function selectedProducts()
     {
-        $productIds = $this->getSelectedProductsAttribute();
-        return Product::whereIn('id', $productIds)->get();
+        return $this->belongsToMany(Product::class, 'order_product', 'order_id', 'product_id');
     }
 
-    // Method untuk mendapatkan note tanpa product data
-    public function getCleanNoteAttribute()
-    {
-        if (str_contains($this->note, 'PRODUCTS:')) {
-            $parts = explode('PRODUCTS:', $this->note);
-            return trim($parts[0]);
-        }
-        return $this->note;
-    }
-
-    public function transaction(): HasOne
-    {
-        return $this->hasOne(Transaction::class);
-    }
-
+    // Relasi ke order assignments
     public function orderAssignments(): HasMany
     {
         return $this->hasMany(OrderAssignment::class);
     }
 
-    // Helper method to get assigned technician
-    public function assignedTechnician()
+    // Boot method untuk hitung total_price otomatis
+    protected static function boot()
     {
-        return $this->orderAssignments()->with('technician')->first()?->technician;
+        parent::boot();
+
+        static::saving(function ($order) {
+            $total = 0;
+
+            if ($order->package_id) {
+                $total += Package::whereKey($order->package_id)->value('price') ?? 0;
+            }
+
+            if ($order->service_id) {
+                $total += Service::whereKey($order->service_id)->value('price') ?? 0;
+            }
+
+            if ($order->product_id) {
+                $total += Product::whereKey($order->product_id)->value('price') ?? 0;
+            }
+
+            $order->total_price = $total;
+        });
     }
 }

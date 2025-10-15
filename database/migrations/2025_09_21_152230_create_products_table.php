@@ -18,8 +18,9 @@ return new class extends Migration
             $table->text('description')->nullable(); // Deskripsi produk
             $table->decimal('price', 12, 2); // Harga produk
 
-            $table->unsignedBigInteger('id_package'); // Relasi ke package
-            $table->foreign('id_package')->references('id')->on('packages')->onDelete('cascade');
+            $table->enum('status', ['available', 'out_of_stock', 'discontinued'])->default('available'); // Status produk
+
+            
 
             $table->timestamps(); // created_at & updated_at
         });

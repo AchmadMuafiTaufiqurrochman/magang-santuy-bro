@@ -25,8 +25,9 @@ class AdminPanelProvider extends PanelProvider
     return $panel
         ->default()
         ->id('admin')
-        ->path('admin')
+        ->path('app/login')
         ->login()
+        ->homeUrl('/admin/dashboard')
         ->colors([
             'primary' => Color::Blue,
             ])
@@ -37,7 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->widgets([
-                
+
             ])
             ->middleware([
                 EncryptCookies::class,

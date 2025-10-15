@@ -4,7 +4,7 @@
         <div class="flex items-center space-x-4">
             <!-- Icon Circle -->
             <div class="w-16 h-16 flex items-center justify-center rounded-full bg-primary-600 text-white">
-                
+
             </div>
 
             <!-- Welcome Text -->
@@ -19,6 +19,4 @@
             </div>
         </div>
     </x-filament::card>
-
-
 </x-filament::page>
