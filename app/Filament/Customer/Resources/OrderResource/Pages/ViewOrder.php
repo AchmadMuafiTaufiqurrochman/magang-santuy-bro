@@ -128,12 +128,12 @@ class ViewOrder extends ViewRecord
                 Forms\Components\Placeholder::make('completion_photo_display')
                     ->label('📷 Photo Bukti Penyelesaian')
                     ->content(function () {
-                        if ($this->record->status === 'done' && $this->record->completion_photo) {
+                        if ($this->record->status === 'completed' && $this->record->completion_photo) {
                             return view('filament.customer.components.completion-photo', ['record' => $this->record]);
                         }
                         return 'No completion photo available.';
                     })
-                    ->visible(fn () => $this->record->status === 'done' && $this->record->completion_photo)
+                    ->visible(fn () => $this->record->status === 'completed' && $this->record->completion_photo)
                     ->helperText('Foto bukti bahwa pekerjaan telah selesai dikerjakan oleh teknisi'),
 
                 Forms\Components\Textarea::make('completion_notes')
@@ -141,14 +141,14 @@ class ViewOrder extends ViewRecord
                     ->disabled()
                     ->dehydrated(false)
                     ->rows(3)
-                    ->visible(fn () => $this->record->status === 'done' && $this->record->completion_notes)
+                    ->visible(fn () => $this->record->status === 'completed' && $this->record->completion_notes)
                     ->helperText('Catatan dari teknisi tentang penyelesaian pekerjaan'),
 
                 Forms\Components\TextInput::make('completed_at')
                     ->label('⏰ Waktu Penyelesaian')
                     ->disabled()
                     ->dehydrated(false)
-                    ->visible(fn () => $this->record->status === 'done' && $this->record->completed_at)
+                    ->visible(fn () => $this->record->status === 'completed' && $this->record->completed_at)
                     ->formatStateUsing(fn () => $this->record->completed_at?->format('d F Y H:i') ?? 'N/A')
                     ->helperText('Waktu ketika order ditandai selesai oleh teknisi'),
             ])

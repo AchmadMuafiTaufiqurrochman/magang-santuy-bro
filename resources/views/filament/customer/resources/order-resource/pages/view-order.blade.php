@@ -37,7 +37,7 @@
                         <div class="bg-white rounded-lg p-4 shadow-sm dark:bg-gray-800">
                             <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide dark:text-gray-400">Date & Time</label>
                             <p class="mt-1 text-base font-semibold text-gray-900 dark:text-white">
-                                {{ $record->date ? $record->date->format('d F Y') : 'N/A' }}
+                                {{ $record->service_date ? $record->service_date->format('d F Y') : 'N/A' }}
                                 @if($record->time_slot)
                                     at {{ \Carbon\Carbon::parse($record->time_slot)->format('H:i') }}
                                 @endif

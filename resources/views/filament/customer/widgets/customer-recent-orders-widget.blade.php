@@ -14,17 +14,17 @@
                     @foreach($this->getRecentOrders() as $order)
                     @php
                         $status = $order->status ?? 'pending';
-                        $borderColor = $status === 'done' ? 'green' : ($status === 'in_progress' ? 'blue' : 'yellow');
-                        $bgColor = $status === 'done' ? 'green' : ($status === 'in_progress' ? 'blue' : 'yellow');
-                        $textColor = $status === 'done' ? 'green' : ($status === 'in_progress' ? 'blue' : 'yellow');
-                        $statusText = $status === 'done' ? '✅ Done' : ($status === 'in_progress' ? '🔄 In Progress' : '⏳ ' . ucfirst($status));
+                        $borderColor = $status === 'completed' ? 'green' : ($status === 'in_progress' ? 'blue' : 'yellow');
+                        $bgColor = $status === 'completed' ? 'green' : ($status === 'in_progress' ? 'blue' : 'yellow');
+                        $textColor = $status === 'completed' ? 'green' : ($status === 'in_progress' ? 'blue' : 'yellow');
+                        $statusText = $status === 'completed' ? '✅ Completed' : ($status === 'in_progress' ? '🔄 In Progress' : '⏳ ' . ucfirst($status));
                     @endphp
                     <div class="border-l-4 border-{{ $borderColor }}-400 pl-4 py-2">
                         <div class="flex justify-between items-start">
                             <div>
                                 <h4 class="font-medium text-gray-900">Order #{{ $order->id }}</h4>
                                 <p class="text-sm text-gray-600">{{ $order->package->name ?? 'Custom Service' }}</p>
-                                <p class="text-xs text-gray-500">{{ $order->date->format('d M Y') }} • {{ $order->time_slot->format('H:i') }}</p>
+                                <p class="text-xs text-gray-500">{{ $order->service_date ? $order->service_date->format('d M Y') : 'N/A' }} • {{ $order->time_slot ? $order->time_slot->format('H:i') : 'N/A' }}</p>
                             </div>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                 bg-{{ $bgColor }}-100 

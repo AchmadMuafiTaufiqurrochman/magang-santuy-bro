@@ -68,13 +68,28 @@ class Order extends Model
 
     public function selectedProducts()
     {
-        return $this->belongsToMany(Product::class, 'order_product', 'order_id', 'product_id');
+        // Ambil data produk dari field note yang berisi JSON
+        $note = $this->note ?? '';
+        
+        // Cari pattern untuk products yang disimpan dalam note
+        if (preg_match('/Products: \[(.*?)\]/', $note, $matches)) {
+            $productIds = array_map('trim', explode(',', $matches[1]));
+            return Product::whereIn('id', $productIds)->get();
+        }
+        
+        return collect([]); // Return empty collection jika tidak ada produk
     }
 
     // Relasi ke order assignments
     public function orderAssignments(): HasMany
     {
         return $this->hasMany(OrderAssignment::class);
+    }
+
+    // Relasi ke transaction
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class, 'order_id');
     }
 
     // Boot method untuk hitung total_price otomatis

@@ -240,11 +240,11 @@ class OrderResource extends Resource
                     'pending' => 'warning',
                     'assigned' => 'info',
                     'in_progress' => 'primary',
-                    'done' => 'success',
+                    'completed' => 'success',
                     'cancelled' => 'danger',
                 })
                 ->formatStateUsing(fn (string $state): string => match ($state) {
-                    'done' => '✅ Done',
+                    'completed' => '✅ Completed',
                     'in_progress' => '🔄 In Progress',
                     'assigned' => '📝 Assigned',
                     'pending' => '⏳ Pending',
@@ -255,7 +255,7 @@ class OrderResource extends Resource
             TextColumn::make('completion_info')
                 ->label('📷 Completion')
                 ->getStateUsing(function ($record) {
-                    if ($record && $record->status === 'done') {
+                    if ($record && $record->status === 'completed') {
                         $text = '';
                         if ($record->completion_photo) {
                             $text .= '📸 Photo Available';
@@ -269,7 +269,7 @@ class OrderResource extends Resource
                     return '-';
                 })
                 ->wrap()
-                ->visible(fn ($record) => $record && $record->status === 'done')
+                ->visible(fn ($record) => $record && $record->status === 'completed')
                 ->color('success'),
 
             // KOLOM 💰 TOTAL PRICE (seperti di create form)
@@ -322,7 +322,7 @@ class OrderResource extends Resource
                     'pending' => 'Pending',
                     'assigned' => 'Assigned',
                     'in_progress' => 'In Progress',
-                    'done' => 'Done',
+                    'completed' => 'Completed',
                     'cancelled' => 'Cancelled',
                 ]),
 

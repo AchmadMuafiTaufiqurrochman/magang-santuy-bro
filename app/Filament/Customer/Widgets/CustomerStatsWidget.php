@@ -22,7 +22,7 @@ class CustomerStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
 
-            BaseWidget\Stat::make('Completed Orders', $user->orders()->where('status', 'done')->count())
+            BaseWidget\Stat::make('Completed Orders', $user->orders()->where('status', 'completed')->count())
                 ->description('Successfully completed')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),

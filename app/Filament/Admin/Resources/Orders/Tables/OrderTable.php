@@ -76,7 +76,7 @@ class OrdersTable
                         'warning' => 'pending',
                         'primary' => 'assigned',
                         'info' => 'in_progress',
-                        'success' => 'done',
+                        'success' => 'completed',
                         'danger' => 'cancelled',
                     ])
                     ->sortable(),

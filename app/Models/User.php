@@ -42,6 +42,12 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Order::class, 'user_id');
     }
 
+    // Alias untuk customerOrders (digunakan di widget customer)
+    public function orders(): HasMany
+    {
+        return $this->customerOrders();
+    }
+
     // Orders yang ditugaskan ke technician
     public function technicianOrders(): HasMany
     {

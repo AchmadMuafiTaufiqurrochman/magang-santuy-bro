@@ -16,7 +16,7 @@ class StatsOverview extends BaseWidget
             Stat::make('Total Orders', Order::count())
                 ->description("Pending: " . Order::where('status', 'pending')->count() .
                               " | Proses: " . Order::where('status', 'in_progress')->count() .
-                              " | Selesai: " . Order::where('status', 'done')->count())
+                              " | Selesai: " . Order::where('status', 'completed')->count())
                 ->color('primary'),
 
             Stat::make('Total Transactions', Transaction::count())

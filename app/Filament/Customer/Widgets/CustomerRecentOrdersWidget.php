@@ -27,7 +27,7 @@ class CustomerRecentOrdersWidget extends Widget
     public function getCompletedOrders()
     {
         return Order::where('user_id', Auth::id())
-            ->where('status', 'done')
+            ->where('status', 'completed')
             ->whereNotNull('completion_photo')
             ->orderBy('completed_at', 'desc')
             ->take(3)

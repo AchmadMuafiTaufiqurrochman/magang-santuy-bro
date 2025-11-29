@@ -57,7 +57,7 @@ class OrderForm
                     'pending'     => 'Pending',
                     'assigned'    => 'Assigned',
                     'in_progress' => 'In Progress',
-                    'done'        => 'Done',
+                    'completed'   => 'Completed',
                     'cancelled'   => 'Cancelled',
                 ])
                 ->default('pending')

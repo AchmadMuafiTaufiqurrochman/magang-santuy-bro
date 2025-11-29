@@ -63,7 +63,7 @@ class Dashboard extends Page implements HasTable
     {
         return \App\Models\OrderAssignment::where('technician_id', Auth::id())
             ->whereHas('order', function($query) {
-                $query->where('status', 'done');
+                $query->where('status', 'completed');
             })
             ->whereDate('assigned_at', today())
             ->count();
@@ -278,7 +278,7 @@ class Dashboard extends Page implements HasTable
                 
                 // Update order
                 $order->update([
-                    'status' => 'done',
+                    'status' => 'completed',
                     'completion_photo' => $path,
                     'completion_notes' => $this->completionNotes,
                     'completed_at' => now()
@@ -362,7 +362,7 @@ class Dashboard extends Page implements HasTable
                         'pending' => 'warning',
                         'assigned' => 'info',
                         'in_progress' => 'primary',
-                        'done' => 'success',
+                        'completed' => 'success',
                         'cancelled' => 'danger',
                         default => 'gray'
                     })
@@ -370,7 +370,7 @@ class Dashboard extends Page implements HasTable
                         'pending' => '⏳ Pending',
                         'assigned' => '📝 Assigned',
                         'in_progress' => '🔄 In Progress',
-                        'done' => '✅ Completed',
+                        'completed' => '✅ Completed',
                         'cancelled' => '❌ Cancelled',
                         default => ucfirst($state)
                     }),
@@ -386,7 +386,7 @@ class Dashboard extends Page implements HasTable
                     ->options([
                         'assigned' => 'Assigned',
                         'in_progress' => 'In Progress',
-                        'done' => 'Completed',
+                        'completed' => 'Completed',
                     ])
                     ->query(function (Builder $query, array $data) {
                         if (!empty($data['value'])) {
