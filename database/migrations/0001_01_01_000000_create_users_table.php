@@ -14,7 +14,7 @@ return new class extends Migration
             // Custom fields
             $table->string('name', 100);
             $table->string('email', 100)->unique()->nullable();
-            $table->string('phone', 20)->unique();
+            $table->string('phone', 20)->unique()->nullable();
             $table->string('province')->nullable();
             $table->string('city')->nullable();
             $table->string('district')->nullable();
