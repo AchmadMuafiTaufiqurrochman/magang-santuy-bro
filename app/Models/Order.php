@@ -20,7 +20,7 @@ class Order extends Model
         'status',
         'time_slot',
         'address',
-        'notes', // Ganti dari 'note' ke 'notes' sesuai dengan migration
+        'notes',
         'total_price',
         'technician_notes',
         'completion_photo',
@@ -29,10 +29,9 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'date' => 'date',
+        'service_date' => 'date',
         'time_slot' => 'datetime:H:i',
         'completed_at' => 'datetime',
-
     ];
 
     // Customer

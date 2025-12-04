@@ -71,7 +71,7 @@ class OrderResource extends Resource
             ->helperText('Select multiple products - hold Ctrl/Cmd to select multiple items'),
 
         // === SCHEDULE & LOCATION ===
-        Forms\Components\DatePicker::make('date')
+        Forms\Components\DatePicker::make('service_date')
             ->label('Service Date')
             ->required()
             ->minDate(now()->addDay())
@@ -193,7 +193,7 @@ class OrderResource extends Resource
                 ->searchable(),
 
             // KOLOM SERVICE DATE (seperti di create form)
-            TextColumn::make('date')
+            TextColumn::make('service_date')
                 ->label('Service Date')
                 ->date('d M Y')
                 ->sortable(),
@@ -336,8 +336,8 @@ class OrderResource extends Resource
                 ])
                 ->query(function (Builder $query, array $data): Builder {
                     return $query
-                        ->when($data['from_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('date', '>=', $date))
-                        ->when($data['to_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('date', '<=', $date));
+                        ->when($data['from_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('service_date', '>=', $date))
+                        ->when($data['to_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('service_date', '<=', $date));
                 }),
         ];
 
