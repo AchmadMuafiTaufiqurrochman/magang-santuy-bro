@@ -71,7 +71,7 @@ class OrderResource extends Resource
             ->helperText('Select multiple products - hold Ctrl/Cmd to select multiple items'),
 
         // === SCHEDULE & LOCATION ===
-        Forms\Components\DatePicker::make('service_date')
+        Forms\Components\DatePicker::make('date')
             ->label('Service Date')
             ->required()
             ->minDate(now()->addDay())
@@ -96,13 +96,9 @@ class OrderResource extends Resource
             ->placeholder('Please provide your complete address for service delivery...')
             ->disabled(fn ($record) => $record && $record->status && !in_array($record->status, ['pending'])),
 
-<<<<<<< HEAD
+
         Forms\Components\Textarea::make('note')
             ->label('Additional Note')
-=======
-        Forms\Components\Textarea::make('notes')
-            ->label('Additional Notes')
->>>>>>> 3c697b2115f7196f1eb00ca6118649f79acb49e9
             ->rows(2)
             ->maxLength(255)
             ->placeholder('Any special instructions or requests...')
@@ -198,7 +194,7 @@ class OrderResource extends Resource
                 ->searchable(),
 
             // KOLOM SERVICE DATE (seperti di create form)
-            TextColumn::make('service_date')
+            TextColumn::make('date')
                 ->label('Service Date')
                 ->date('d M Y')
                 ->sortable(),
@@ -224,20 +220,10 @@ class OrderResource extends Resource
                 ->searchable(),
 
             // KOLOM ADDITIONAL NOTES (seperti di create form)
-<<<<<<< HEAD
             TextColumn::make('note')
                 ->label('Additional Note')
                 ->getStateUsing(function ($record) {
                     return $record->getCleanNoteAttribute() ?: 'No note';
-=======
-            TextColumn::make('notes')
-                ->label('Additional Notes')
-                ->getStateUsing(function ($record) {
-                    // Hapus data PRODUCTS: jika ada, hanya tampilkan notes asli
-                    $notes = $record->notes ?? '';
-                    $cleanNote = preg_replace('/PRODUCTS:\[.*?\]\s*/i', '', $notes);
-                    return trim($cleanNote) ?: 'No notes';
->>>>>>> 3c697b2115f7196f1eb00ca6118649f79acb49e9
                 })
                 ->limit(30)
                 ->tooltip(function (TextColumn $column): ?string {
@@ -348,8 +334,8 @@ class OrderResource extends Resource
                 ])
                 ->query(function (Builder $query, array $data): Builder {
                     return $query
-                        ->when($data['from_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('service_date', '>=', $date))
-                        ->when($data['to_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('service_date', '<=', $date));
+                        ->when($data['from_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('date', '>=', $date))
+                        ->when($data['to_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('date', '<=', $date));
                 }),
         ];
 
