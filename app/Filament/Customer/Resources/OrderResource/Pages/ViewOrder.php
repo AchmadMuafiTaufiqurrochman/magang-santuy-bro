@@ -61,7 +61,7 @@ class ViewOrder extends ViewRecord
                     ->helperText('Select multiple products - hold Ctrl/Cmd to select multiple items'),
 
                 // === SCHEDULE & LOCATION === (sama seperti di create)
-                Forms\Components\DatePicker::make('date')
+                Forms\Components\DatePicker::make('service_date')
                     ->label('Service Date')
                     ->disabled()
                     ->dehydrated(false)
@@ -80,12 +80,17 @@ class ViewOrder extends ViewRecord
                     ->rows(3)
                     ->placeholder('Please provide your complete address for service delivery...'),
 
-                Forms\Components\Textarea::make('note')
+                Forms\Components\Textarea::make('notes')
                     ->label('Additional Notes')
                     ->disabled()
                     ->dehydrated(false)
                     ->rows(2)
-                    ->formatStateUsing(fn () => $this->record->getCleanNoteAttribute() ?: '')
+                    ->formatStateUsing(function () {
+                        // Hapus data PRODUCTS: jika ada, hanya tampilkan notes asli
+                        $notes = $this->record->notes ?? '';
+                        $cleanNote = preg_replace('/PRODUCTS:\[.*?\]\s*/i', '', $notes);
+                        return trim($cleanNote) ?: 'No additional notes';
+                    })
                     ->placeholder('Any special instructions or requests...'),
 
                 // === ORDER SUMMARY === (sama seperti di create)
