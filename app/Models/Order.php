@@ -20,16 +20,12 @@ class Order extends Model
         'status',
         'time_slot',
         'address',
-
-        'note',
+        'notes', // Ganti dari 'note' ke 'notes' sesuai dengan migration
         'total_price',
-
-        'note', // Akan menggunakan field note untuk menyimpan info products juga
         'technician_notes',
         'completion_photo',
         'completion_notes',
         'completed_at',
-        'status',
     ];
 
     protected $casts = [
@@ -68,11 +64,11 @@ class Order extends Model
 
     public function selectedProducts()
     {
-        // Ambil data produk dari field note yang berisi JSON
-        $note = $this->note ?? '';
+        // Ambil data produk dari field notes yang berisi JSON
+        $notes = $this->notes ?? '';
         
-        // Cari pattern untuk products yang disimpan dalam note
-        if (preg_match('/Products: \[(.*?)\]/', $note, $matches)) {
+        // Cari pattern untuk products yang disimpan dalam notes
+        if (preg_match('/Products: \[(.*?)\]/', $notes, $matches)) {
             $productIds = array_map('trim', explode(',', $matches[1]));
             return Product::whereIn('id', $productIds)->get();
         }

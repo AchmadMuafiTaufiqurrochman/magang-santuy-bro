@@ -96,7 +96,7 @@ class OrderResource extends Resource
             ->placeholder('Please provide your complete address for service delivery...')
             ->disabled(fn ($record) => $record && $record->status && !in_array($record->status, ['pending'])),
 
-        Forms\Components\Textarea::make('note')
+        Forms\Components\Textarea::make('notes')
             ->label('Additional Notes')
             ->rows(2)
             ->maxLength(255)
@@ -219,10 +219,13 @@ class OrderResource extends Resource
                 ->searchable(),
 
             // KOLOM ADDITIONAL NOTES (seperti di create form)
-            TextColumn::make('note')
+            TextColumn::make('notes')
                 ->label('Additional Notes')
                 ->getStateUsing(function ($record) {
-                    return $record->getCleanNoteAttribute() ?: 'No notes';
+                    // Hapus data PRODUCTS: jika ada, hanya tampilkan notes asli
+                    $notes = $record->notes ?? '';
+                    $cleanNote = preg_replace('/PRODUCTS:\[.*?\]\s*/i', '', $notes);
+                    return trim($cleanNote) ?: 'No notes';
                 })
                 ->limit(30)
                 ->tooltip(function (TextColumn $column): ?string {
