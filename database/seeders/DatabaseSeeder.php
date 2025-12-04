@@ -166,24 +166,40 @@ class DatabaseSeeder extends Seeder
             [
                 'id' => 1,
                 'user_id' => 2, // customer
+                'technician_id' => 3, // teknisi
                 'service_id' => 3, // Cuci AC
                 'package_id' => 1, // Paket Cuci AC
                 'product_id' => null,
+                'service_date' => now()->subDays(2),
+                'time_slot' => '10:00:00',
+                'address' => 'Jl. Contoh No. 123, Surabaya',
+                'notes' => 'AC kamar tidur utama',
                 'status' => 'completed',
                 'total_price' => 150000,
                 'order_date' => now()->subDays(2),
+                'completion_photo' => null,
+                'completion_notes' => 'Sudah selesai dibersihkan',
+                'completed_at' => now()->subDay(),
                 'created_at' => now()->subDays(2),
                 'updated_at' => now()->subDay(),
             ],
             [
                 'id' => 2,
                 'user_id' => 2, // customer
+                'technician_id' => 3, // teknisi
                 'service_id' => 4, // Isi Freon
                 'package_id' => 2, // Paket Isi Freon
                 'product_id' => 4, // Freon R32
-                'status' => 'pending',
+                'service_date' => now()->addDay(),
+                'time_slot' => '14:00:00',
+                'address' => 'Jl. Contoh No. 456, Sidoarjo',
+                'notes' => 'AC ruang tamu tidak dingin',
+                'status' => 'assigned',
                 'total_price' => 850000, // service + produk
                 'order_date' => now(),
+                'completion_photo' => null,
+                'completion_notes' => null,
+                'completed_at' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -195,6 +211,8 @@ class DatabaseSeeder extends Seeder
                 'id' => 1,
                 'order_id' => 1,
                 'technician_id' => 3,
+                'assigned_by' => 1, // Admin yang assign
+                'assigned_at' => now()->subDays(2),
                 'created_at' => now()->subDays(2),
                 'updated_at' => now()->subDays(2),
             ],
@@ -202,6 +220,8 @@ class DatabaseSeeder extends Seeder
                 'id' => 2,
                 'order_id' => 2,
                 'technician_id' => 3,
+                'assigned_by' => 1, // Admin yang assign
+                'assigned_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

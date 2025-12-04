@@ -123,9 +123,18 @@ class OrdersTable
                             ->required(),
                     ])
                     ->action(function (array $data, Order $record): void {
+                        // Update order dengan technician_id dan status
                         $record->update([
                             'technician_id' => $data['technician_id'],
                             'status' => $record->status === 'pending' ? 'assigned' : $record->status,
+                        ]);
+
+                        // Buat OrderAssignment agar order muncul di dashboard teknisi
+                        \App\Models\OrderAssignment::create([
+                            'order_id' => $record->id,
+                            'technician_id' => $data['technician_id'],
+                            'assigned_by' => auth()->id(),
+                            'assigned_at' => now(),
                         ]);
 
                         $technician = User::find($data['technician_id']);

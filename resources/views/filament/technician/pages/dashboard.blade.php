@@ -91,40 +91,44 @@
             <div class="bg-gray-900 p-6">
                 @if(!$capturedPhotoData)
                     <!-- Capture Controls -->
-                    <!-- Control Buttons Row 1 -->
-                    <div class="flex justify-center items-center space-x-4 mb-4">
-                        <button wire:click="closeCameraModal" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm transition-colors">
-                            ❌ Cancel
-                        </button>
-                        <button onclick="initCamera()" class="px-3 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-xs transition-colors">
-                            🔄 Retry Camera
-                        </button>
-                        <button onclick="switchCamera()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors">
-                            🔄 Switch Cam
-                        </button>
-                    </div>
-                    
-                    <!-- Main Capture Button -->
-                    <div class="flex justify-center items-center">
-                        <button onclick="capturePhoto()" class="w-28 h-28 bg-white rounded-full border-4 border-gray-300 hover:border-blue-500 flex items-center justify-center shadow-2xl transform hover:scale-110 transition-all duration-200 relative group">
-                            <div class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center group-hover:bg-red-700 transition-colors">
-                                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="space-y-4">
+                        <!-- Main Capture Button - BIG RED BUTTON -->
+                        <div class="flex justify-center">
+                            <button onclick="capturePhoto()" class="px-12 py-5 bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold text-2xl transition-colors shadow-2xl transform hover:scale-105 active:scale-95 flex items-center gap-3">
+                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
                                 </svg>
-                            </div>
-                        </button>
+                                📸 AMBIL FOTO
+                            </button>
+                        </div>
+                        
+                        <p class="text-green-400 text-center text-lg font-semibold">☝️ Klik tombol di atas untuk mengambil foto</p>
+                        
+                        <!-- Alternative Circle Button -->
+                        <div class="flex justify-center">
+                            <button onclick="capturePhoto()" class="w-20 h-20 bg-white rounded-full border-4 border-gray-300 hover:border-red-500 flex items-center justify-center shadow-2xl transform hover:scale-110 active:scale-95 transition-all duration-200">
+                                <div class="w-16 h-16 bg-red-600 rounded-full group-hover:bg-red-700 transition-colors"></div>
+                            </button>
+                        </div>
+                        
+                        <p class="text-gray-400 text-center text-sm">atau klik tombol bulat merah</p>
+                        
+                        <!-- Control Buttons Row -->
+                        <div class="flex justify-center items-center gap-3 pt-4 border-t border-gray-700">
+                            <button wire:click="closeCameraModal" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Batal
+                            </button>
+                            <button onclick="switchCamera()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                🔄 Ganti Kamera
+                            </button>
+                            <button onclick="initCamera()" class="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors flex items-center gap-2">
+                                🔄 Coba Lagi
+                            </button>
+                        </div>
                     </div>
-                    
-                    <!-- Alternative Text Button -->
-                    <div class="flex justify-center mt-4">
-                        <button onclick="capturePhoto()" class="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold text-lg transition-colors shadow-lg">
-                            � TAKE PHOTO
-                        </button>
-                    </div>
-                    <p class="text-gray-300 text-center text-sm mt-3">📸 Choose your capture method:</p>
-                    <p class="text-gray-400 text-center text-xs mt-1">• Tap the RED CIRCLE button, OR</p>
-                    <p class="text-gray-400 text-center text-xs">• Tap the "TAKE PHOTO" button</p>
-                    <p class="text-gray-500 text-center text-xs mt-2">Make sure you are online to complete the order</p>
                 @else
                     <!-- Photo Review Controls -->
                     <div class="flex justify-center items-center space-x-4">

@@ -150,13 +150,18 @@ class Dashboard extends Page implements HasTable
             ->first();
 
         if ($assignment) {
-            // Delete the assignment and reset order status to pending
-            $assignment->order->update(['status' => 'pending']);
+            // Reset order status and remove technician
+            $assignment->order->update([
+                'status' => 'pending',
+                'technician_id' => null,
+            ]);
+            
+            // Delete the assignment
             $assignment->delete();
 
             \Filament\Notifications\Notification::make()
-                ->title('Order Rejected')
-                ->body("Order #{$assignment->order->id} has been rejected and returned to pending status.")
+                ->title('Order Ditolak ✋')
+                ->body("Order #{$assignment->order->id} telah ditolak dan dikembalikan ke status pending.")
                 ->warning()
                 ->send();
 
@@ -338,7 +343,7 @@ class Dashboard extends Page implements HasTable
                     ->default('Custom Service')
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('order.date')
+                Tables\Columns\TextColumn::make('order.service_date')
                     ->label('Service Date')
                     ->date('d M Y')
                     ->sortable(),
