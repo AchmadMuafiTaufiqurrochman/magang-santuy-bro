@@ -26,13 +26,13 @@ class CreateOrder extends CreateRecord
         $data['user_id'] = Auth::id();
         $data['status'] = 'pending';
 
-        // Gabungkan note dengan selected products info
-        $originalNote = trim($data['note'] ?? '');
+        // Gabungkan notes dengan selected products info
+        $originalNote = trim($data['notes'] ?? '');
         $selectedProducts = $data['selected_products'] ?? [];
 
         if (!empty($selectedProducts) && is_array($selectedProducts)) {
-            // Simpan selected products ke dalam note sebagai JSON
-            $data['note'] = $originalNote . ' PRODUCTS:' . json_encode($selectedProducts);
+            // Simpan selected products ke dalam notes sebagai JSON
+            $data['notes'] = $originalNote . ' PRODUCTS:' . json_encode($selectedProducts);
         }
 
         // Remove fields yang tidak ada di database

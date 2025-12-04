@@ -25,17 +25,17 @@ class EditOrder extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        // Populate selected_products dari note untuk ditampilkan di form
-        if (isset($data['note']) && str_contains($data['note'], 'PRODUCTS:')) {
-            $parts = explode('PRODUCTS:', $data['note']);
+        // Populate selected_products dari notes untuk ditampilkan di form
+        if (isset($data['notes']) && str_contains($data['notes'], 'PRODUCTS:')) {
+            $parts = explode('PRODUCTS:', $data['notes']);
             if (isset($parts[1])) {
                 $productIds = json_decode(trim($parts[1]), true);
                 if (is_array($productIds)) {
                     $data['selected_products'] = $productIds;
                 }
             }
-            // Tampilkan note tanpa product data
-            $data['note'] = trim($parts[0]);
+            // Tampilkan notes tanpa product data
+            $data['notes'] = trim($parts[0]);
         }
 
         return $data;
@@ -55,13 +55,13 @@ class EditOrder extends EditRecord
         $data['user_id'] = $this->record->user_id;
         $data['status'] = $this->record->status;
 
-        // Gabungkan note dengan selected products info (sama seperti CreateOrder)
-        $originalNote = trim($data['note'] ?? '');
+        // Gabungkan notes dengan selected products info (sama seperti CreateOrder)
+        $originalNote = trim($data['notes'] ?? '');
         $selectedProducts = $data['selected_products'] ?? [];
 
         if (!empty($selectedProducts) && is_array($selectedProducts)) {
-            // Simpan selected products ke dalam note sebagai JSON
-            $data['note'] = $originalNote . ' PRODUCTS:' . json_encode($selectedProducts);
+            // Simpan selected products ke dalam notes sebagai JSON
+            $data['notes'] = $originalNote . ' PRODUCTS:' . json_encode($selectedProducts);
         }
 
         // Remove fields yang tidak ada di database
