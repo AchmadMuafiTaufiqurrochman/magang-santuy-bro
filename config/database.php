@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Str;
 
+// Polyfill for env() if not available in this runtime
+if (!function_exists('env')) {
+    function env(string $key, $default = null) {
+        return $_ENV[$key] ?? $_SERVER[$key] ?? $default;
+    }
+}
+
 return [
 
     /*

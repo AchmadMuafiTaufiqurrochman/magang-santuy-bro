@@ -97,7 +97,7 @@ class OrderResource extends Resource
             ->disabled(fn ($record) => $record && $record->status && !in_array($record->status, ['pending'])),
 
         Forms\Components\Textarea::make('note')
-            ->label('Additional Notes')
+            ->label('Additional Note')
             ->rows(2)
             ->maxLength(255)
             ->placeholder('Any special instructions or requests...')
@@ -176,7 +176,7 @@ class OrderResource extends Resource
                 ->wrap()
                 ->searchable(),
 
-            // KOLOM INDIVIDUAL PRODUCTS  
+            // KOLOM INDIVIDUAL PRODUCTS
             TextColumn::make('products')
                 ->label('Individual Products')
                 ->getStateUsing(function ($record) {
@@ -198,7 +198,7 @@ class OrderResource extends Resource
                 ->date('d M Y')
                 ->sortable(),
 
-            // KOLOM PREFERRED TIME (seperti di create form)  
+            // KOLOM PREFERRED TIME (seperti di create form)
             TextColumn::make('time_slot')
                 ->label('Preferred Time')
                 ->time('H:i')
@@ -220,9 +220,9 @@ class OrderResource extends Resource
 
             // KOLOM ADDITIONAL NOTES (seperti di create form)
             TextColumn::make('note')
-                ->label('Additional Notes')
+                ->label('Additional Note')
                 ->getStateUsing(function ($record) {
-                    return $record->getCleanNoteAttribute() ?: 'No notes';
+                    return $record->getCleanNoteAttribute() ?: 'No note';
                 })
                 ->limit(30)
                 ->tooltip(function (TextColumn $column): ?string {
