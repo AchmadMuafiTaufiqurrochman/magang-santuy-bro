@@ -52,7 +52,7 @@ return new class extends Migration
                   ->default('pending');
 
             $table->decimal('total_price', 12, 2)->default(0);
-            $table->text('notes')->nullable();
+            $table->text('note')->nullable();
 
             $table->timestamps();
         });

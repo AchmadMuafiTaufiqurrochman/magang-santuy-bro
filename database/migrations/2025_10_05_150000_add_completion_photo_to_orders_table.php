@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('completion_photo')->nullable()->after('notes');
+            $table->string('completion_photo')->nullable()->after('note');
             $table->text('completion_notes')->nullable()->after('completion_photo');
             $table->timestamp('completed_at')->nullable()->after('completion_notes');
         });

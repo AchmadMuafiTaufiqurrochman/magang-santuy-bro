@@ -18,3 +18,5 @@ Route::post('/app/logout', [CustomLoginController::class, 'logout'])->name('logo
 Route::get('/app/register', [CustomRegisterController::class, 'showRegisterForm'])->name('register');
 Route::post('/app/register', [CustomRegisterController::class, 'register']);
 // Other routes...
+
+

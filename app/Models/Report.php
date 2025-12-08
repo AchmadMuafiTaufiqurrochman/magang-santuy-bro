@@ -2,42 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Report extends Model
 {
     use HasFactory;
 
-    protected $table = 'products';
-
     protected $fillable = [
-        'name',
+        'order_id',
+        'title',
         'description',
-        'price',       // dipakai untuk produk yang terhubung dengan package
-        'id_package',  // foreign key ke Package
-        'base_price',  // harga dasar untuk variasi paket
-        'status',      // status produk (active/inactive)
+        'type',
+        'report_date',
     ];
 
-    protected $casts = [
-        'base_price' => 'decimal:2',
-    ];
-
-    /**
-     * Relasi: Product milik satu Package
-     */
-    public function package()
+    public function order()
     {
-        return $this->belongsTo(Package::class, 'id_package');
-    }
-
-    /**
-     * Relasi: Product punya banyak Paket
-     */
-    public function pakets(): HasMany
-    {
-        return $this->hasMany(Paket::class);
+        return $this->belongsTo(Order::class);
     }
 }

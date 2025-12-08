@@ -7,7 +7,6 @@ use App\Filament\Admin\Resources\Reports\Pages\EditReport;
 use App\Filament\Admin\Resources\Reports\Pages\ListReports;
 use App\Filament\Admin\Resources\Reports\Schemas\ReportForm;
 use App\Filament\Admin\Resources\Reports\Tables\ReportsTable;
-use App\Models\Order;
 use App\Models\Report;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,11 +17,10 @@ use Filament\Tables\Table;
 class ReportResource extends Resource
 {
     protected static ?string $model = Report::class;
-
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentChartBar;
-
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $recordTitleAttribute = 'Report';
-
+    protected static string|\UnitEnum|null $navigationGroup = 'Transactions';
+    protected static ?string $navigationLabel = 'Reports';
     public static function form(Schema $schema): Schema
     {
         return ReportForm::configure($schema);

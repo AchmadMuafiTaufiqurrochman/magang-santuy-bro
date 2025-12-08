@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Service extends Model
 {
-
     protected $fillable = [
         'name',
         'description',
@@ -16,5 +15,5 @@ class Service extends Model
     protected $casts = [
         'price' => 'decimal:2',
     ];
-    
+
 }

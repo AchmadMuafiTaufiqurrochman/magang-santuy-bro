@@ -7,6 +7,7 @@ use BackedEnum;
 use App\Filament\Admin\Widgets\UserStats;
 use App\Filament\Admin\Widgets\StatsOverview;
 use App\Filament\Admin\Widgets\CalendarWidget;
+use App\Filament\Admin\Widgets\MyCalendarWidget;
 
 class Dashboard extends Page
 {
@@ -26,9 +27,9 @@ class Dashboard extends Page
     protected function getfooterWidgets(): array
     {
         return [
-            CalendarWidget::class,
             StatsOverview::class,
             UserStats::class,
+
         ];
     }
 }

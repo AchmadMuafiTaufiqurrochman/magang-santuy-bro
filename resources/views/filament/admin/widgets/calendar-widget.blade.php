@@ -13,19 +13,25 @@
                 initialView: 'dayGridMonth',
                 editable: true,
                 selectable: true,
+
+                // Ambil event yang sudah kamu generate dari model Order
                 events: @json($this->getSchedules()),
 
+                console.log(@json($this->getSchedules()));
+
+                // Klik tanggal → buat order baru
                 dateClick(info) {
-                    // Arahkan ke Create
-                    window.location.href = '/admin/schedules/create?date=' + info.dateStr;
+                    window.location.href = '/admin/orders/create?date=' + info.dateStr;
                 },
+
+                // Klik event → edit order
                 eventClick(info) {
-                    // Arahkan ke Edit
-                    window.location.href = '/admin/schedules/' + info.event.id + '/edit';
+                    window.location.href = '/admin/orders/' + info.event.id + '/edit';
                 }
             });
 
             calendar.render();
         });
+
     </script>
 </x-filament-widgets::widget>

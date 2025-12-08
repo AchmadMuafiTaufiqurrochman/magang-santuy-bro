@@ -146,7 +146,7 @@ class OrderForm
             /**
              * NOTES
              */
-            Textarea::make('notes')
+            Textarea::make('note')
                 ->label('Additional Notes')
                 ->rows(2)
                 ->maxLength(255),
