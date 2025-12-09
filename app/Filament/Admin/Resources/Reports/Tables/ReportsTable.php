@@ -15,27 +15,7 @@ class ReportsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')->sortable(),
-
-                TextColumn::make('order_id')
-                    ->label('Order')
-                    ->sortable(),
-
-                TextColumn::make('title')
-                    ->sortable()
-                    ->searchable(),
-
-                TextColumn::make('type')
-                    ->badge(),
-
-                TextColumn::make('report_date')
-                    ->date()
-                    ->sortable(),
-
-                TextColumn::make('created_at')
-                    ->dateTime('d M Y H:i')
-                    ->sortable()
-                    ->toggleable(),
+              
             ])
             ->filters([
                 //

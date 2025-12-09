@@ -14,32 +14,8 @@ class ReportForm
     {
         return $schema
             ->components([
-            Select::make('order_id')
-                  ->label('Order')
-                  ->relationship('order', 'id')
-                  ->searchable()
-                  ->required(),
-            TextInput::make('title')
-                  ->label('Report Title')
-                  ->required()
-                  ->maxLength(150),
-            Textarea::make('description')
-                  ->label('Description')
-                  ->rows(4)
-                  ->maxLength(500),
-            Select::make('type')
-                  ->label('Report Type')
-                  ->options([
-                    'daily' => 'Daily',
-                    'weekly' => 'Weekly',
-                    'monthly' => 'Monthly',
-                    'custom' => 'Custom',
-                  ])
-                  ->required(),
-            TextInput::make('report_date')
-                  ->label('Report Date')
-                  ->type('date')
-                  ->required(),
-            ]);
+                
+
+                  ]);
     }
 }
